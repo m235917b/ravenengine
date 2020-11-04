@@ -5,6 +5,7 @@
  *      Author: marvi
  */
 
+#include <glm/glm.hpp>
 #include <Mesh.hpp>
 
 Mesh::Mesh() : WorldObject(0.0f, 0.0f, 0.0f), name(), bones(), rest_model() {

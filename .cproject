@@ -55,6 +55,8 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;E:\glm-0.9.9.8\glm&quot;"/>
                                     									
+                                    <listOptionValue builtIn="false" value="&quot;E:\documents\projects\stb_image\include&quot;"/>
+                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
                                     								
                                 </option>
@@ -74,6 +76,8 @@
                                     <listOptionValue builtIn="false" value="&quot;E:\SDL2-2.0.12\x86_64-w64-mingw32\include&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;E:\glm-0.9.9.8\glm&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;E:\documents\projects\stb_image\include&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
                                     								
