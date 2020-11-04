@@ -5,33 +5,19 @@
  *      Author: marvi
  */
 
-#include <NPCSimple.h>
+#include <algorithm>
 #include <glm/glm.hpp>
-#include <glm/vec3.hpp>
-#include <loadObject.h>
+#include <loadObject.hpp>
+#include <NPCSimple.hpp>
 
 NPCSimple::NPCSimple(float posX, float posY, float posZ) :
-		WorldObject(posX, posY, posZ) {
+		ComposedObject(posX, posY, posZ) {
 	rot = glm::vec3(0.0f, 1.0f, 0.0f);
-	objData data = getObject("obj/ttt.obj");
-	genBuffers(data.v, data.n, data.t, data.i);
-	genTexture("tex/test.png");
-}
-
-std::vector<GLfloat> NPCSimple::getVertexData() {
-	return getVertices("obj/untitled.obj");
-}
-
-std::vector<GLfloat> NPCSimple::getNormalData() {
-	return getNormals("obj/untitled.obj");
-}
-
-std::vector<GLfloat> NPCSimple::getTexData() {
-	return getTexCoords("obj/untitled.obj");
-}
-
-std::vector<GLuint> NPCSimple::getIndexData() {
-	return getIndices("obj/untitled.obj");
+	auto obj = loadObject("obj/ttt.txt");
+	std::for_each(obj.meshes.begin(), obj.meshes.end(), [this](auto &m) {
+		m.loadTexture("tex/test1.png");
+		meshes.push_back(m);
+	});
 }
 
 void NPCSimple::run() {

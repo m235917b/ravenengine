@@ -1,7 +1,12 @@
-#include <CubeTest.h>
-#include <loadShader.hpp>
+/*
+ * CubeTest.cpp
+ *
+ *  Created on: Nov 1, 2020
+ *      Author: marvi
+ */
 
-//constructor
+#include <CubeTest.hpp>
+
 Cube::Cube(float posX, float posY, float posZ) :
 		WorldObject(posX, posY, posZ) {
 	rot = glm::vec3(-1.0f, 1.0f, 0.0f);

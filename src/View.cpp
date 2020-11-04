@@ -5,7 +5,11 @@
  *      Author: marvi
  */
 
-#include <View.h>
+#include <gl\glew.h>
+#include <SDL2\SDL_opengl.h>
+#include <gl\glu.h>
+#include <View.hpp>
+#include "glm/gtc/matrix_transform.hpp"
 #include <algorithm>
 
 View::View() {
@@ -121,17 +125,17 @@ View::~View() {
 
 void View::render(Model &model) {
 	v = glm::lookAt(
-			model.getPlayer().get()->getPos()
-					- 10.0f * model.getPlayer().get()->getLook(),
-			model.getPlayer().get()->getPos()
-					+ model.getPlayer().get()->getLook(),
-			model.getPlayer().get()->getUp());
+			model.getPlayer()->getPos()
+					- 10.0f * model.getPlayer()->getLook(),
+			model.getPlayer()->getPos()
+					+ model.getPlayer()->getLook(),
+			model.getPlayer()->getUp());
 
 	//Clear color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	std::for_each(model.firstObject(), model.lastObject(),
-			[this](auto const &o) {
+			[this](auto &o) {
 				o->render(projection, v);
 			});
 

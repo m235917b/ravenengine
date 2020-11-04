@@ -5,7 +5,7 @@
  *      Author: marvi
  */
 
-#include <Controler.h>
+#include <Controler.hpp>
 
 int main(int argc, char *args[]) {
 	Controler c = Controler();

@@ -1,113 +1,18 @@
 /*
- * loadObject.cpp
+ * loadObj.cpp
  *
- *  Created on: Oct 31, 2020
+ *  Created on: Nov 1, 2020
  *      Author: marvi
  */
 
-#include <loadObject.h>
+#include <Animation.hpp>
 #include <fstream>
+#include <loadObject.hpp>
 
-#include <iostream>
-#include <algorithm>
-
-std::vector<GLfloat> getVertices(const char *filename) {
-	std::ifstream file(filename);
-	std::string str;
-	std::vector<GLfloat> out = std::vector<GLfloat>();
-
-	while (std::getline(file, str)) {
-		if (str.at(0) == 'v' && str.at(1) == ' ') {
-			int beg = 0;
-			int end = str.find(' ', 0);
-
-			for (int i = 0; i < 3; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				out.push_back(std::stof(str.substr(beg, end - beg)));
-			}
-		}
-	}
-
-	file.close();
-
-	return out;
-}
-
-std::vector<GLfloat> getNormals(const char *filename) {
-	std::ifstream file(filename);
-	std::string str;
-	std::vector<GLfloat> out = std::vector<GLfloat>();
-
-	while (std::getline(file, str)) {
-		if (str.at(0) == 'v' && str.at(1) == 'n') {
-			int beg = 0;
-			int end = str.find(' ', 0);
-
-			for (int i = 0; i < 3; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				out.push_back(std::stof(str.substr(beg, end - beg)));
-			}
-		}
-	}
-
-	file.close();
-
-	return out;
-}
-
-std::vector<GLuint> getIndices(const char *filename) {
-	std::ifstream file(filename);
-	std::string str;
-	std::vector<GLuint> out = std::vector<GLuint>();
-
-	while (std::getline(file, str)) {
-		if (str.at(0) == 'f' && str.at(1) == ' ') {
-			int beg = 0;
-			int end = str.find(' ', 0);
-
-			for (int i = 0; i < 3; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				out.push_back(
-						std::stoi(str.substr(beg, str.find('/', beg) - beg))
-								- 1);
-			}
-		}
-	}
-
-	file.close();
-
-	return out;
-}
-
-std::vector<GLfloat> getTexCoords(const char *filename) {
-	std::ifstream file(filename);
-	std::string str;
-	std::vector<GLfloat> out = std::vector<GLfloat>();
-
-	while (std::getline(file, str)) {
-		if (str.at(0) == 'v' && str.at(1) == 't') {
-			int beg = 0;
-			int end = str.find(' ', 0);
-
-			for (int i = 0; i < 2; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				out.push_back(std::stof(str.substr(beg, end - beg)));
-			}
-		}
-	}
-
-	file.close();
-
-	return out;
-}
-
-int findElem(std::vector<std::string> &v, std::string &comp) {
+template<typename T>
+int findElem(std::vector<T> &v, std::function<bool(T)> f) {
 	for (unsigned int i = 0; i < v.size(); ++i) {
-		if (v.at(i) == comp) {
+		if (f(v.at(i))) {
 			return i;
 		}
 	}
@@ -115,107 +20,142 @@ int findElem(std::vector<std::string> &v, std::string &comp) {
 	return -1;
 }
 
-objData getObject(const char *filename) {
-	objData out;
-
-	std::vector<GLfloat> v = std::vector<GLfloat>();
-	std::vector<GLfloat> n = std::vector<GLfloat>();
-	std::vector<GLfloat> t = std::vector<GLfloat>();
-	std::vector<GLuint> indexV = std::vector<GLuint>();
-	std::vector<GLuint> indexT = std::vector<GLuint>();
-	std::vector<GLuint> indexN = std::vector<GLuint>();
+compObj loadObject(const std::string filename) {
+	auto out = compObj();
+	out.meshes = std::vector<Mesh>();
+	out.bones = std::vector<bone>();
 
 	std::ifstream file(filename);
 	std::string str;
 
+	auto vertexData = std::vector<GLfloat>();
+	auto normalData = std::vector<GLfloat>();
+	auto texData = std::vector<GLfloat>();
+	auto indexData = std::vector<GLuint>();
+	auto tex = std::string();
+	auto name = std::string();
+
+	bone b = bone();
+	b.name = "";
+
+	int ctr = 0;
+	int mode = 0;
+
 	while (std::getline(file, str)) {
-		if (str.at(0) == 'v' && str.at(1) == ' ') {
-			int beg = 0;
-			int end = str.find(' ', 0);
+		if (str.find("mesh", 0) == 0) {
+			mode = 0;
 
-			for (int i = 0; i < 3; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				v.push_back(std::stof(str.substr(beg, end - beg)));
+			if (name != "") {
+				out.meshes.push_back(
+						Mesh(vertexData, normalData, texData, indexData, tex,
+								name));
 			}
-		} else if (str.at(0) == 'v' && str.at(1) == 'n') {
-			int beg = 0;
-			int end = str.find(' ', 0);
 
-			for (int i = 0; i < 3; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				n.push_back(std::stof(str.substr(beg, end - beg)));
+			vertexData = std::vector<GLfloat>();
+			normalData = std::vector<GLfloat>();
+			texData = std::vector<GLfloat>();
+			indexData = std::vector<GLuint>();
+			tex = std::string();
+			name = str.substr(str.find('=', 0) + 1, str.length());
+		} else if (str.find("skeleton", 0) == 0) {
+			mode = 1;
+			if (name != "") {
+				out.meshes.push_back(
+						Mesh(vertexData, normalData, texData, indexData, tex,
+								name));
 			}
-		} else if (str.at(0) == 'v' && str.at(1) == 't') {
-			int beg = 0;
-			int end = str.find(' ', 0);
-
-			for (int i = 0; i < 2; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-				t.push_back(std::stof(str.substr(beg, end - beg)));
+		} else if (str.find("parentbones", 0) == 0) {
+			mode = 2;
+			if (b.name != "") {
+				out.bones.push_back(b);
 			}
-		} else if (str.at(0) == 'f' && str.at(1) == ' ') {
-			int beg = 0;
-			int end = str.find(' ', 0);
-
-			for (int i = 0; i < 3; ++i) {
-				beg = ++end;
-				end = str.find(' ', beg);
-
-				int begIndex = beg;
-				int endIndex = str.find('/', begIndex);
-				indexV.push_back(
-						std::stoi(str.substr(begIndex, endIndex - begIndex))
-								- 1);
-				begIndex = ++endIndex;
-				endIndex = str.find('/', begIndex);
-				indexT.push_back(
-						std::stoi(str.substr(begIndex, endIndex - begIndex))
-								- 1);
-				begIndex = ++endIndex;
-				indexN.push_back(
-						std::stoi(str.substr(begIndex, end - begIndex)) - 1);
-			}
-		}
-	}
-
-	file.close();
-
-	out.v = std::vector<GLfloat>();
-	out.n = std::vector<GLfloat>();
-	out.t = std::vector<GLfloat>();
-	out.i = std::vector<GLuint>();
-
-	std::vector<std::string> tracker = std::vector<std::string>();
-
-	unsigned int indexCtr = 0;
-
-	for (unsigned int i = 0; i < indexV.size(); ++i) {
-		std::string track = std::to_string(indexV.at(i)) + " "
-				+ std::to_string(indexN.at(i)) + " "
-				+ std::to_string(indexT.at(i));
-
-		int find = findElem(tracker, track);
-
-		if (find != -1) {
-			out.i.push_back(find);
 		} else {
-			out.i.push_back(indexCtr++);
+			switch (mode) {
+			case 0:
+				if (str.at(0) == 'i') {
+					indexData.push_back(std::stoi(str.substr(1, str.length())));
+				} else {
+					switch (ctr) {
+					case 0:
+						indexData.push_back(std::stoi(str));
+						break;
+					case 1:
+						vertexData.push_back(std::stof(str));
+						break;
+					case 2:
+						vertexData.push_back(std::stof(str));
+						break;
+					case 3:
+						vertexData.push_back(std::stof(str));
+						break;
+					case 4:
+						normalData.push_back(std::stof(str));
+						break;
+					case 5:
+						normalData.push_back(std::stof(str));
+						break;
+					case 6:
+						normalData.push_back(std::stof(str));
+						break;
+					case 7:
+						texData.push_back(std::stof(str));
+						break;
+					case 8:
+						texData.push_back(std::stof(str));
+						break;
+					}
 
-			out.v.push_back(v.at(indexV.at(i) * 3));
-			out.v.push_back(v.at(indexV.at(i) * 3 + 1));
-			out.v.push_back(v.at(indexV.at(i) * 3 + 2));
+					ctr = ctr >= 8 ? 0 : ctr + 1;
+				}
+				break;
+			case 1:
+				if (b.name != "") {
+					out.bones.push_back(b);
+				}
+				b = bone();
+				if (str.find("armature mat", 0) == 0) {
+					auto arm_mat = glm::mat4();
+					for (int i = 0; i < 4; ++i) {
+						for (int j = 0; j < 4; ++j) {
+							std::getline(file, str);
+							arm_mat[i][j] = std::stof(str);
+						}
+					}
+					out.arm_mat = arm_mat;
+				} else {
+					if (str.find("p ", 0) == 0) {
+						b.name = str.substr(str.find(" ", 0) + 1, str.length());
+						std::getline(file, str);
+						b.parent = findElem<bone>(out.bones,
+								[&str](const bone &n) {
+									return n.name == str;
+								});
+					} else {
+						b.name = str.substr(0, str.length());
+					}
+					b.mat = glm::mat4();
+					for (int i = 0; i < 4; ++i) {
+						for (int j = 0; j < 4; ++j) {
+							std::getline(file, str);
+							b.mat[i][j] = std::stof(str);
+						}
+					}
+				}
+				break;
+			case 2:
+				auto mesh = findElem<Mesh>(out.meshes, [&str](const Mesh &m) {
+					return m.getName() == str;
+				});
+				std::getline(file, str);
+				auto parent = findElem<bone>(out.bones, [&str](const bone &n) {
+					return n.name == str;
+				});
 
-			out.n.push_back(n.at(indexN.at(i) * 3));
-			out.n.push_back(n.at(indexN.at(i) * 3 + 1));
-			out.n.push_back(n.at(indexN.at(i) * 3 + 2));
-
-			out.t.push_back(t.at(indexT.at(i) * 2));
-			out.t.push_back(1 - t.at(indexT.at(i) * 2 + 1));
-
-			tracker.push_back(track);
+				if (mesh > -1 && parent > -1) {
+					out.meshes.at(mesh).addBone(parent);
+				}
+				break;
+			}
 		}
 	}
 

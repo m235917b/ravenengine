@@ -1,11 +1,12 @@
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/vec3.hpp>
-#include <glm/gtx/io.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
+/*
+ * CubeTest.h
+ *
+ *  Created on: Nov 1, 2020
+ *      Author: marvi
+ */
 
-#include <WorldObject.h>
+#include <GL/glew.h>
+#include <WorldObject.hpp>
 
 #ifndef TESTCUBE_H
 #define TESTCUBE_H

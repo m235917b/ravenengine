@@ -8,7 +8,7 @@
 #ifndef ANIMTEST_H_
 #define ANIMTEST_H_
 
-#include <ComposedObject.h>
+#include <ComposedObject.hpp>
 
 class AnimTest : public ComposedObject {
 private:

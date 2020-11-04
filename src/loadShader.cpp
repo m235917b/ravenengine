@@ -1,9 +1,8 @@
-#include <GL\glew.h>
-#include <loadShader.hpp>
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <GL\glew.h>
+#include <loadShader.hpp>
 
 unsigned int loadShaders(const char *vertex_file_path,
 		const char *fragment_file_path) {

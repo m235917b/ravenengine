@@ -5,12 +5,12 @@
  *      Author: marvi
  */
 
+#include <Animation.hpp>
 #include <algorithm>
 #include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <loadObj.h>
-#include <Animation.h>
+#include <loadObject.hpp>
 
 Animation::Animation(std::vector<bone> &bones, std::vector<Mesh> &meshes,
 		const glm::mat4 &armature_world_matrix, const float speed,
@@ -48,7 +48,7 @@ Animation::Animation(std::vector<bone> &bones, std::vector<Mesh> &meshes,
 			keyframes.insert(
 					std::pair<std::string, std::map<int, keyframe>>(
 							bones.at(boneId).name, std::map<int, keyframe>()));
-			keyframes[bones.at(boneId).name].insert(
+			keyframes.at(bones.at(boneId).name).insert(
 					std::pair<int, keyframe>(frame, keyf));
 		} else if (str.find("f", 0) == 0) {
 			frame = std::stoi(str.substr(1, str.length()));
@@ -78,13 +78,13 @@ glm::mat4 Animation::interpolate(glm::quat rotation_begin,
 }
 
 void Animation::start() {
-	frame = keyframe_ids.at(0);
+	frame = keyframe_ids.front();
 	lowKeyframe = 0;
 	is_running = true;
 }
 
 void Animation::end() {
-	frame = keyframe_ids.at(0);
+	frame = keyframe_ids.front();
 	lowKeyframe = 0;
 	is_running = false;
 }
@@ -108,12 +108,13 @@ void Animation::update() {
 				auto parent = b;
 				do {
 					m.setModel(glm::inverse(bones->at(parent).mat) * m.getModel());
-					m.setModel(interpolate(keyframes[bones->at(parent).name][keyframe_ids.at(lowKeyframe)].rot,
-							keyframes[bones->at(parent).name][keyframe_ids.at(lowKeyframe)].trans,
-							keyframes[bones->at(parent).name][keyframe_ids.at(lowKeyframe)].scal,
-							keyframes[bones->at(parent).name][keyframe_ids.at(lowKeyframe + 1)].rot,
-							keyframes[bones->at(parent).name][keyframe_ids.at(lowKeyframe + 1)].trans,
-							keyframes[bones->at(parent).name][keyframe_ids.at(lowKeyframe + 1)].scal,
+					m.setModel(interpolate(keyframes.at(bones->at(parent).name).at(
+								keyframe_ids.at(lowKeyframe)).rot,
+							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe)).trans,
+							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe)).scal,
+							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe + 1)).rot,
+							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe + 1)).trans,
+							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe + 1)).scal,
 							keyframe_ids.at(lowKeyframe + 1)
 							- keyframe_ids.at(lowKeyframe), frame)
 							* m.getModel());

@@ -5,21 +5,12 @@
  *      Author: marvi
  */
 
-#ifndef INCLUDE_VIEW_H_
-#define INCLUDE_VIEW_H_
+#ifndef INCLUDE_VIEW_HPP_
+#define INCLUDE_VIEW_HPP_
 
 #include <SDL2\SDL.h>
-#include <gl\glew.h>
-#include <SDL2\SDL_opengl.h>
-#include <gl\glu.h>
 #include <glm\glm.hpp>
-#include <glm\gtx\rotate_vector.hpp>
-#include <iostream>
-#include <stdio.h>
-
-#include <Model.h>
-#include <Player.hpp>
-#include <CubeTest.h>
+#include <Model.hpp>
 
 class View {
 private:
@@ -46,4 +37,4 @@ public:
 	void render(Model &model);
 };
 
-#endif /* INCLUDE_VIEW_H_ */
+#endif /* INCLUDE_VIEW_HPP_ */

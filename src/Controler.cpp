@@ -5,16 +5,8 @@
  *      Author: marvi
  */
 
-#include <Controler.h>
-
+#include <Controler.hpp>
 #include <SDL2\SDL.h>
-#include <gl\glew.h>
-#include <SDL2\SDL_opengl.h>
-#include <gl\glu.h>
-#include <glm\glm.hpp>
-#include <glm\gtx\rotate_vector.hpp>
-#include <iostream>
-#include <stdio.h>
 
 Controler::Controler() :
 		view(), model(), player(model.getPlayer()) {
@@ -87,23 +79,23 @@ void Controler::run() {
 				break;
 
 			case SDL_MOUSEMOTION:
-				player.get()->rotateX(-e.motion.xrel * 0.001f);
-				player.get()->rotateY(-e.motion.yrel * 0.001f);
+				player->rotateX(-e.motion.xrel * 0.001f);
+				player->rotateY(-e.motion.yrel * 0.001f);
 				break;
 			}
 		}
 
 		if (keyW) {
-			player.get()->moveForeward(0.5f);
+			player->moveForeward(0.5f);
 		}
 		if (keyS) {
-			player.get()->moveForeward(-0.5f);
+			player->moveForeward(-0.5f);
 		}
 		if (keyD) {
-			player.get()->moveLeft(0.5f);
+			player->moveLeft(0.5f);
 		}
 		if (keyA) {
-			player.get()->moveLeft(-0.5f);
+			player->moveLeft(-0.5f);
 		}
 
 		view.render(model);

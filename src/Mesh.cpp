@@ -5,10 +5,11 @@
  *      Author: marvi
  */
 
-#include <Mesh.h>
+#include <Mesh.hpp>
 
-#include <iostream>
-#include <algorithm>
+Mesh::Mesh() : WorldObject(0.0f, 0.0f, 0.0f), name(), bones(), rest_model() {
+
+}
 
 Mesh::Mesh(std::vector<GLfloat> &vertexData, std::vector<GLfloat> &normalData,
 		std::vector<GLfloat> &texData, std::vector<GLuint> &indexData,
@@ -48,5 +49,13 @@ std::string Mesh::getName() const {
 
 void Mesh::resetModel() {
 	model = rest_model;
+}
+
+void Mesh::transform(glm::mat4 mat) {
+	model = model * mat;
+}
+
+void Mesh::loadTexture(std::string filename) {
+	genTexture(filename);
 }
 

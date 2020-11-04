@@ -8,17 +8,12 @@
 #ifndef NPCSIMPLE_H_
 #define NPCSIMPLE_H_
 
-#include <WorldObject.h>
+#include <ComposedObject.hpp>
 
-class NPCSimple: public WorldObject {
+class NPCSimple: public ComposedObject {
 private:
 
 protected:
-	std::vector<GLfloat> getVertexData();
-	std::vector<GLfloat> getNormalData();
-	std::vector<GLfloat> getTexData();
-	std::vector<GLuint> getIndexData();
-
 	void run();
 
 public:

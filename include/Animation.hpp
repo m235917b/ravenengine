@@ -5,15 +5,15 @@
  *      Author: marvi
  */
 
-#ifndef INCLUDE_ANIMATION_H_
-#define INCLUDE_ANIMATION_H_
+#ifndef INCLUDE_ANIMATION_HPP_
+#define INCLUDE_ANIMATION_HPP_
 
 #include <string>
 #include <glm/glm.hpp>
 #include <map>
 #include <vector>
 #include <glm/gtx/quaternion.hpp>
-#include <Mesh.h>
+#include <Mesh.hpp>
 
 struct keyframe_struct {
 	glm::quat rot;
@@ -63,4 +63,4 @@ public:
 	void update();
 };
 
-#endif /* INCLUDE_ANIMATION_H_ */
+#endif /* INCLUDE_ANIMATION_HPP_ */

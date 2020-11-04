@@ -5,13 +5,10 @@
  *      Author: marvi
  */
 
-#ifndef INCLUDE_CONTROLER_H_
-#define INCLUDE_CONTROLER_H_
+#ifndef INCLUDE_CONTROLER_HPP_
+#define INCLUDE_CONTROLER_HPP_
 
-#include <View.h>
-#include <Model.h>
-#include <WorldObject.h>
-#include <Player.hpp>
+#include <View.hpp>
 
 class Controler {
 private:
@@ -22,7 +19,7 @@ private:
 
 	View view;
 	Model model;
-	std::shared_ptr<Player> player;
+	Player* player;
 
 public:
 	Controler();
@@ -31,4 +28,4 @@ public:
 	void run();
 };
 
-#endif /* INCLUDE_CONTROLER_H_ */
+#endif /* INCLUDE_CONTROLER_HPP_ */

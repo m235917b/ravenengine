@@ -5,10 +5,11 @@
  *      Author: marvi
  */
 
-#ifndef INCLUDE_WORLDOBJECT_H_
-#define INCLUDE_WORLDOBJECT_H_
+#ifndef INCLUDE_WORLDOBJECT_HPP_
+#define INCLUDE_WORLDOBJECT_HPP_
 
 #include <vector>
+#include <string>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
@@ -37,7 +38,7 @@ protected:
 			std::vector<GLfloat> &normalData, std::vector<GLfloat> &texData,
 			std::vector<GLuint> &indexData);
 
-	void genTexture(const char *path);
+	void genTexture(std::string filename);
 
 public:
 	WorldObject(float posX, float posY, float posZ);
@@ -48,4 +49,4 @@ public:
 	virtual void render(glm::mat4 &projection, glm::mat4 &view);
 };
 
-#endif /* INCLUDE_WORLDOBJECT_H_ */
+#endif /* INCLUDE_WORLDOBJECT_HPP_ */

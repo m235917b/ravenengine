@@ -8,16 +8,16 @@
 #ifndef COMPOSEDOBJECT_H_
 #define COMPOSEDOBJECT_H_
 
-#include <Animation.h>
-#include <Mesh.h>
+#include <Animation.hpp>
+#include <Mesh.hpp>
 
-struct cObj {
+struct compObj_struct {
 	std::vector<Mesh> meshes;
 	std::vector<bone> bones;
 	glm::mat4 arm_mat;
 };
 
-typedef cObj compObj;
+typedef compObj_struct compObj;
 
 class ComposedObject : public WorldObject {
 private:
@@ -32,6 +32,7 @@ protected:
 
 public:
 	ComposedObject();
+	ComposedObject(float posX, float posY, float posZ);
 	virtual ~ComposedObject();
 	void render(glm::mat4 &projection, glm::mat4 &view);
 };

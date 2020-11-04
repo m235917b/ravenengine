@@ -5,14 +5,9 @@
  *      Author: marvi
  */
 
-#include <AnimTest.h>
-#include <loadObj.h>
-#include <Mesh.h>
+#include <AnimTest.hpp>
 #include <algorithm>
-#include <glm\gtx\rotate_vector.hpp>
-#include <glm/gtx/quaternion.hpp>
-
-#include <iostream>
+#include <loadObject.hpp>
 
 AnimTest::AnimTest() :
 		ComposedObject() {
@@ -31,13 +26,13 @@ AnimTest::AnimTest() :
 	animations.push_back(
 			Animation(bones, meshes, armature_world, 0.1f, "anim/anim.txt"));
 
-	auto scale = glm::mat4(0.0f);
-	scale[0][0] = 1.0f;
-	scale[1][1] = 1.0f;
-	scale[2][2] = -1.0f;
-	scale[3][3] = 1.0f;
+	/*auto scale = glm::mat4(0.0f);
+	 scale[0][0] = 1.0f;
+	 scale[1][1] = 1.0f;
+	 scale[2][2] = -1.0f;
+	 scale[3][3] = 1.0f;
 
-	/*std::for_each(meshes.begin(), meshes.end(),
+	 std::for_each(meshes.begin(), meshes.end(),
 	 [](auto &m) {
 	 m.setModel(
 	 m.getModel()
@@ -54,7 +49,7 @@ AnimTest::AnimTest() :
 
 	angle = -1.6f;
 
-	animations.at(0).start();
+	animations.front().start();
 }
 
 AnimTest::~AnimTest() {

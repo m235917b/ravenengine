@@ -6,7 +6,6 @@
  */
 
 #include <glm\gtx\rotate_vector.hpp>
-#include <loadShader.hpp>
 #include <Player.hpp>
 
 //constructor

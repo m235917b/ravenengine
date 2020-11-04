@@ -5,11 +5,11 @@
  *      Author: marvi
  */
 
-#include <glm\gtx\rotate_vector.hpp>
-#include <loadShader.hpp>
-#include <WorldObject.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <glm\gtx\rotate_vector.hpp>
+#include <loadShader.hpp>
+#include <WorldObject.hpp>
 
 WorldObject::WorldObject(float posX, float posY, float posZ) {
 	programID = loadShaders("shader/vertexShader.vert",
@@ -45,8 +45,8 @@ void WorldObject::genBuffers(std::vector<GLfloat> &vertexData,
 
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER,
-			vertexData.size() * sizeof(GLfloat), vertexData.data(),
+	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(GLfloat),
+			vertexData.data(),
 			GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -54,8 +54,8 @@ void WorldObject::genBuffers(std::vector<GLfloat> &vertexData,
 
 	glGenBuffers(1, &normalbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-	glBufferData(GL_ARRAY_BUFFER,
-			normalData.size() * sizeof(GLfloat), normalData.data(),
+	glBufferData(GL_ARRAY_BUFFER, normalData.size() * sizeof(GLfloat),
+			normalData.data(),
 			GL_STATIC_DRAW);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -72,8 +72,8 @@ void WorldObject::genBuffers(std::vector<GLfloat> &vertexData,
 
 	glGenBuffers(1, &indexbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-			indexData.size() * sizeof(GLuint), indexData.data(),
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(GLuint),
+			indexData.data(),
 			GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -90,11 +90,11 @@ void WorldObject::genBuffers(std::vector<GLfloat> &vertexData,
 	vertexCount = indexData.size() + 1;
 }
 
-void WorldObject::genTexture(const char *path) {
+void WorldObject::genTexture(std::string filename) {
 	// load image, create texture
 	int width, height, nrChannels;
 	// load image file with stbi library
-	unsigned char *imageBuffer = stbi_load(path, &width, &height,
+	unsigned char *imageBuffer = stbi_load(filename.c_str(), &width, &height,
 			&nrChannels, 0);
 
 	// load and create a texture

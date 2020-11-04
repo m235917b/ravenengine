@@ -8,10 +8,8 @@
 #ifndef INCLUDE_PLAYER_HPP_
 #define INCLUDE_PLAYER_HPP_
 
-#include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <glm/vec3.hpp>
-#include <WorldObject.h>
+#include <WorldObject.hpp>
 
 class Player : public WorldObject {
 private:

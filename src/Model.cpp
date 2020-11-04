@@ -5,11 +5,11 @@
  *      Author: marvi
  */
 
-#include <Model.h>
+#include <AnimTest.hpp>
 #include <algorithm>
-#include <CubeTest.h>
-#include <NPCSimple.h>
-#include <AnimTest.h>
+#include <CubeTest.hpp>
+#include <Model.hpp>
+#include <NPCSimple.hpp>
 
 Model::Model() :
 		objects(std::vector<std::shared_ptr<WorldObject>>()) {
@@ -26,8 +26,8 @@ Model::Model() :
 	objects.push_back(std::shared_ptr<WorldObject>(new AnimTest()));
 }
 
-std::shared_ptr<Player> Model::getPlayer() {
-	return std::dynamic_pointer_cast<Player>(*objects.begin());
+Player* Model::getPlayer() {
+	return static_cast<Player*>(objects.front().get());
 }
 
 std::vector<std::shared_ptr<WorldObject>>::iterator Model::firstObject() {

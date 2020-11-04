@@ -8,7 +8,7 @@
 #ifndef MESH_H_
 #define MESH_H_
 
-#include <WorldObject.h>
+#include <WorldObject.hpp>
 #include <string>
 
 class Mesh: public WorldObject {
@@ -18,6 +18,7 @@ private:
 	glm::mat4 rest_model;
 
 public:
+	Mesh();
 	Mesh(std::vector<GLfloat> &vertexData, std::vector<GLfloat> &normalData,
 			std::vector<GLfloat> &texData, std::vector<GLuint> &indexData,
 			std::string tex, std::string name);
@@ -30,6 +31,8 @@ public:
 	void setRestModel(glm::mat4 mat);
 	std::string getName() const;
 	void resetModel();
+	void transform(glm::mat4 mat);
+	void loadTexture(std::string filename);
 };
 
 #endif /* MESH_H_ */

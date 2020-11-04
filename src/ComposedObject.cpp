@@ -5,12 +5,17 @@
  *      Author: marvi
  */
 
-#include <ComposedObject.h>
+#include <ComposedObject.hpp>
 #include <algorithm>
 #include <glm\gtx\rotate_vector.hpp>
 
 ComposedObject::ComposedObject() :
 		WorldObject(0.0f, 0.0f, 0.0f), meshes(), bones(), animations() {
+}
+
+ComposedObject::ComposedObject(float posX, float posY, float posZ) :
+		WorldObject(posX, posY, posZ), meshes(), bones(), animations() {
+
 }
 
 ComposedObject::~ComposedObject() {
