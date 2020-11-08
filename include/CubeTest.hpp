@@ -5,13 +5,13 @@
  *      Author: marvi
  */
 
-#include <GL/glew.h>
-#include <WorldObject.hpp>
-
 #ifndef TESTCUBE_H
 #define TESTCUBE_H
 
-class Cube: public WorldObject {
+#include <GL/glew.h>
+#include <Solid.hpp>
+
+class Cube: public rpy::Solid {
 private:
 
 protected:

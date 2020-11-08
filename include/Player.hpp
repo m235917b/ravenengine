@@ -9,9 +9,9 @@
 #define INCLUDE_PLAYER_HPP_
 
 #include <glm/glm.hpp>
-#include <WorldObject.hpp>
+#include <Solid.hpp>
 
-class Player : public WorldObject {
+class Player : public rpy::Solid {
 private:
 	glm::vec3 lookAt;
 

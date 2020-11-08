@@ -24,7 +24,9 @@ ComposedObject::~ComposedObject() {
 
 void ComposedObject::render(glm::mat4 &projection, glm::mat4 &view) {
 	run();
-	auto mod = glm::rotate(glm::translate(model, pos), angle, rot);
+	auto mod = objectspaceTrans
+			* glm::rotate(glm::scale(glm::translate(model, pos), scal), angle,
+					rot);
 	std::for_each(meshes.begin(), meshes.end(),
 			[&mod, &projection, &view, this](auto &obj) {
 				obj.setModel(mod * obj.getModel());

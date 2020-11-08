@@ -18,7 +18,7 @@ protected:
 	void run();
 
 public:
-	AnimTest();
+	AnimTest(float posX, float posY, float posZ);
 	~AnimTest();
 };
 

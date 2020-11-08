@@ -8,10 +8,11 @@
 #include <AnimTest.hpp>
 #include <algorithm>
 #include <loadObject.hpp>
+#include <math.h>
 
-AnimTest::AnimTest() :
-		ComposedObject() {
-	auto obj = loadObject("obj/object.txt");
+AnimTest::AnimTest(float posX, float posY, float posZ) :
+		ComposedObject(posX, posY, posZ) {
+	auto obj = loadObject("obj/object1.txt");
 
 	armature_world = obj.arm_mat;
 
@@ -24,29 +25,10 @@ AnimTest::AnimTest() :
 	});
 
 	animations.push_back(
-			Animation(bones, meshes, armature_world, 0.1f, "anim/anim.txt"));
-
-	/*auto scale = glm::mat4(0.0f);
-	 scale[0][0] = 1.0f;
-	 scale[1][1] = 1.0f;
-	 scale[2][2] = -1.0f;
-	 scale[3][3] = 1.0f;
-
-	 std::for_each(meshes.begin(), meshes.end(),
-	 [](auto &m) {
-	 m.setModel(
-	 m.getModel()
-	 * glm::scale(glm::mat4(1.0f),
-	 glm::vec3(2.0f, 2.0f, 2.0f)));
-	 m.setRestModel(m.getModel());
-	 });
-
-	 std::for_each(bones.begin(), bones.end(), [](auto &b) {
-	 b->mat = glm::scale(b->mat, glm::vec3(2.0f, 2.0f, 2.0f));
-	 });*/
+			Animation(bones, meshes, armature_world, 0.1f, "anim/anim1.txt"));
 
 	rot = glm::vec3(1.0f, 0.0f, 0.0f);
-
+	scal = glm::vec3(30.0f, 30.0f, 30.0f);
 	angle = -1.6f;
 
 	animations.front().start();

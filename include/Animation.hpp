@@ -43,10 +43,7 @@ private:
 	float frame;
 	int lowKeyframe;
 
-	glm::mat4 interpolate(glm::quat rotation_begin, glm::vec3 translation_begin,
-			glm::vec3 scale_begin, glm::quat rotation_target,
-			glm::vec3 translation_target, glm::vec3 scale_target, int span,
-			float frame);
+	glm::mat4 interpolate(const int parent);
 
 protected:
 

@@ -61,11 +61,23 @@ Animation::~Animation() {
 
 }
 
-glm::mat4 Animation::interpolate(glm::quat rotation_begin,
-		glm::vec3 translation_begin, glm::vec3 scale_begin,
-		glm::quat rotation_target, glm::vec3 translation_target,
-		glm::vec3 scale_target, int span, float frame) {
-	frame -= keyframe_ids.at(lowKeyframe);
+glm::mat4 Animation::interpolate(const int parent) {
+	const auto frame = this->frame - keyframe_ids.at(lowKeyframe);
+	const auto rotation_begin = keyframes.at(bones->at(parent).name).at(
+			keyframe_ids.at(lowKeyframe)).rot;
+	const auto translation_begin = keyframes.at(bones->at(parent).name).at(
+			keyframe_ids.at(lowKeyframe)).trans;
+	const auto scale_begin = keyframes.at(bones->at(parent).name).at(
+			keyframe_ids.at(lowKeyframe)).scal;
+	const auto rotation_target = keyframes.at(bones->at(parent).name).at(
+			keyframe_ids.at(lowKeyframe + 1)).rot;
+	const auto translation_target = keyframes.at(bones->at(parent).name).at(
+			keyframe_ids.at(lowKeyframe + 1)).trans;
+	const auto scale_target = keyframes.at(bones->at(parent).name).at(
+			keyframe_ids.at(lowKeyframe + 1)).scal;
+	const int span = keyframe_ids.at(lowKeyframe + 1)
+			- keyframe_ids.at(lowKeyframe);
+
 	auto r = rotation_begin
 			+ (rotation_target - rotation_begin) * (float) frame / (float) span;
 	auto t = translation_begin
@@ -108,16 +120,7 @@ void Animation::update() {
 				auto parent = b;
 				do {
 					m.setModel(glm::inverse(bones->at(parent).mat) * m.getModel());
-					m.setModel(interpolate(keyframes.at(bones->at(parent).name).at(
-								keyframe_ids.at(lowKeyframe)).rot,
-							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe)).trans,
-							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe)).scal,
-							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe + 1)).rot,
-							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe + 1)).trans,
-							keyframes.at(bones->at(parent).name).at(keyframe_ids.at(lowKeyframe + 1)).scal,
-							keyframe_ids.at(lowKeyframe + 1)
-							- keyframe_ids.at(lowKeyframe), frame)
-							* m.getModel());
+					m.setModel(interpolate(parent) * m.getModel());
 					m.setModel(bones->at(parent).mat * m.getModel());
 					parent = bones->at(parent).parent;
 				} while (parent >= 0);

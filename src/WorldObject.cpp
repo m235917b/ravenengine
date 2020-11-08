@@ -11,26 +11,14 @@
 #include <loadShader.hpp>
 #include <WorldObject.hpp>
 
-WorldObject::WorldObject(float posX, float posY, float posZ) {
-	programID = loadShaders("shader/vertexShader.vert",
-			"shader/fragmentShader.frag");
-
-	model = glm::mat4(1.0f);
-
-	pos = glm::vec3(posX, posY, posZ);
-	rot = glm::vec3(0.0f, 1.0f, 0.0f);
-	angle = 0.0f;
-
-	matrixID = glGetUniformLocation(programID, "MVP");
-
-	textureID = 0;
-
-	vertexbuffer = 0;
-	normalbuffer = 0;
-	texbuffer = 0;
-	indexbuffer = 0;
-	vertexarray = 0;
-	vertexCount = 0;
+WorldObject::WorldObject(float posX, float posY, float posZ) :
+		programID(
+				loadShaders("shader/vertexShader.vert",
+						"shader/fragmentShader.frag")), matrixID(
+		glGetUniformLocation(programID, "MVP")), textureID(0), vertexbuffer(0), normalbuffer(
+				0), texbuffer(0), indexbuffer(0), vertexarray(0), vertexCount(
+				0), pos(posX, posY, posZ), rot(0.0f, 1.0f, 0.0f), scal(1.0f), model(
+				1.0f), objectspaceTrans(1.0f), angle(0.0f) {
 }
 
 WorldObject::~WorldObject() {
@@ -129,11 +117,32 @@ void WorldObject::move(glm::vec3 dist) {
 	pos += dist;
 }
 
+glm::vec3 WorldObject::getPos() {
+	return pos;
+}
+
+glm::vec3 WorldObject::getRot() {
+	return rot;
+}
+
+glm::vec3 WorldObject::getScal() {
+	return scal;
+}
+
+glm::mat4 WorldObject::getModel() {
+	return model;
+}
+
+float WorldObject::getAngle() {
+	return angle;
+}
+
 void WorldObject::render(glm::mat4 &projection, glm::mat4 &view) {
 	run();
 
-	glm::mat4 mvp = projection * view
-			* glm::rotate(glm::translate(model, pos), angle, rot);
+	glm::mat4 mvp = projection * view * objectspaceTrans
+			* glm::rotate(glm::scale(glm::translate(model, pos), scal), angle,
+					rot);
 
 	glUseProgram(programID);
 	glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);

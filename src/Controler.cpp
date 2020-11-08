@@ -7,10 +7,12 @@
 
 #include <Controler.hpp>
 #include <SDL2\SDL.h>
+#include <rpy.hpp>
 
 Controler::Controler() :
 		view(), model(), player(model.getPlayer()) {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
+	rpy::initSolids(model.getSolids().size());
 }
 
 Controler::~Controler() {
@@ -97,6 +99,8 @@ void Controler::run() {
 		if (keyA) {
 			player->moveLeft(-0.5f);
 		}
+
+		rpy::handleCollisions(model.getSolids());
 
 		view.render(model);
 	}

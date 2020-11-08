@@ -10,7 +10,7 @@
 
 //constructor
 Player::Player() :
-		WorldObject(0.0f, 0.0f, 0.0f) {
+		rpy::Solid(0.0f, 0.0f, 0.0f) {
 	lookAt = glm::vec3(0.0f, 0.0f, -1.0f);
 	std::vector<GLfloat> v = getVertexData();
 	std::vector<GLfloat> n = getNormalData();
@@ -18,6 +18,7 @@ Player::Player() :
 	std::vector<GLuint> i = getIndexData();
 	genBuffers(v, n, t, i);
 	genTexture("tex/test.png");
+	fillTriangles(v, n, i);
 }
 
 Player::~Player() {
@@ -25,7 +26,7 @@ Player::~Player() {
 }
 
 Player::Player(const Player &that) :
-		WorldObject(0.0f, 0.0f, 0.0f) {
+		rpy::Solid(0.0f, 0.0f, 0.0f) {
 	if (this != &that) {
 		this->programID = that.programID;
 		this->model = that.model;
@@ -107,14 +108,17 @@ glm::vec3 Player::getUp() {
 
 void Player::move(glm::vec3 dir) {
 	pos += dir;
+	setSpherePos(pos);
 }
 
 void Player::moveForeward(float amount) {
 	pos += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
+	setSpherePos(pos);
 }
 
 void Player::moveLeft(float amount) {
 	pos += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
+	setSpherePos(pos);
 }
 
 void Player::rotateX(float angle) {

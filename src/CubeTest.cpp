@@ -5,18 +5,20 @@
  *      Author: marvi
  */
 
-#include <glm/glm.hpp>
 #include <CubeTest.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 Cube::Cube(float posX, float posY, float posZ) :
-		WorldObject(posX, posY, posZ) {
-	rot = glm::vec3(-1.0f, 1.0f, 0.0f);
+		Solid(posX, posY, posZ) {
 	std::vector<GLfloat> v = getVertexData();
 	std::vector<GLfloat> n = getNormalData();
 	std::vector<GLfloat> t = getTexData();
 	std::vector<GLuint> i = getIndexData();
 	genBuffers(v, n, t, i);
 	genTexture("tex/cube.png");
+	fillTriangles(v, n, i);
+	transformSphere(glm::translate(glm::vec3(posX, posY, posZ)));
 }
 
 std::vector<GLfloat> Cube::getVertexData() {
@@ -48,5 +50,5 @@ std::vector<GLuint> Cube::getIndexData() {
 }
 
 void Cube::run() {
-	angle += 0.1f;
+
 }

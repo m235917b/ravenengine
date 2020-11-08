@@ -25,11 +25,13 @@ protected:
 	GLuint texbuffer;
 	GLuint indexbuffer;
 	GLuint vertexarray;
-	glm::mat4 model;
 	int vertexCount;
 
 	glm::vec3 pos;
 	glm::vec3 rot;
+	glm::vec3 scal;
+	glm::mat4 model;
+	glm::mat4 objectspaceTrans;
 	float angle;
 
 	virtual void run();
@@ -47,6 +49,12 @@ public:
 	void move(glm::vec3 dist);
 
 	virtual void render(glm::mat4 &projection, glm::mat4 &view);
+
+	glm::vec3 getPos();
+	glm::vec3 getRot();
+	glm::vec3 getScal();
+	glm::mat4 getModel();
+	float getAngle();
 };
 
 #endif /* INCLUDE_WORLDOBJECT_HPP_ */
