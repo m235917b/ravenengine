@@ -48,6 +48,10 @@ public:
 				head_ptr - indices.at(list_ptr - 1);
 	}
 
+	bool isEmpty() {
+		return head_ptr <= indices.at(active_list);
+	}
+
 	unsigned int numLists() {
 		return list_ptr;
 	}
@@ -61,6 +65,11 @@ public:
 		list_ptr = 1;
 		indices.at(0) = 0;
 		active_list = 0;
+	}
+
+	void clearCurrent() {
+		head_ptr = indices.at(active_list);
+		list_ptr = active_list + 1;
 	}
 
 	//finishes current list and appends new one

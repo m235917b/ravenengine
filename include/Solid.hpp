@@ -12,24 +12,37 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <WorldObject.hpp>
+#include <ArrayVector2D.hpp>
 
 namespace rpy {
 
+typedef struct vertex_struct {
+	glm::vec4 pos;
+	glm::vec3 normal;
+} vertex;
+
 typedef struct triangle_struct {
-	glm::vec3 a;
-	glm::vec3 b;
-	glm::vec3 c;
+	vertex *a;
+	vertex *b;
+	vertex *c;
 	glm::vec3 n;
 } triangle;
 
 typedef struct sphere_struct {
 	float rad;
-	glm::vec3 pos;
+	glm::vec4 pos;
 } sphere;
 
 class Solid : public WorldObject {
 private:
+	std::vector<vertex> vertices;
+	std::vector<vertex> verticesLocal;
 	std::vector<triangle> polygon;
+	ArrayVector2D<int> solidsortx;
+	ArrayVector2D<int> solidsorty;
+	ArrayVector2D<int> solidsortz;
+	ArrayVector2D<int> solidsort;
+	std::vector<int> aux;
 	sphere bs;
 
 	inline void setSphere();
@@ -45,9 +58,23 @@ public:
 
 	void transformSphere(glm::mat4 m);
 
-	void moveSphere(glm::vec3 v);
+	void moveSphere(glm::vec4 v);
 
-	void setSpherePos(glm::vec3 v);
+	void setSpherePos(glm::vec4 v);
+
+	std::vector<triangle>& getPolygon();
+
+	ArrayVector2D<int>& getSolidSortX();
+
+	ArrayVector2D<int>& getSolidSortY();
+
+	ArrayVector2D<int>& getSolidSortZ();
+
+	ArrayVector2D<int>& getSolidSort();
+
+	std::vector<int>& getAux();
+
+	void updateVertices();
 };
 
 }

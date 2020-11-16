@@ -37,8 +37,7 @@ Model::Model() :
 			std::shared_ptr<rpy::Solid>(new Cube(50.0f, 0.0f, -200.0f)));
 	solids.push_back(
 			std::shared_ptr<rpy::Solid>(new Cube(30.0f, 0.0f, -30.0f)));
-	solids.push_back(
-				std::shared_ptr<rpy::Solid>(new Cube(0.0f, 0.0f, -30.0f)));
+	solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(0.0f, 0.0f, -30.0f)));
 }
 
 Player* Model::getPlayer() {

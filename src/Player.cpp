@@ -108,17 +108,17 @@ glm::vec3 Player::getUp() {
 
 void Player::move(glm::vec3 dir) {
 	pos += dir;
-	setSpherePos(pos);
+	setSpherePos(glm::vec4(pos, 1.0f));
 }
 
 void Player::moveForeward(float amount) {
 	pos += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
-	setSpherePos(pos);
+	setSpherePos(glm::vec4(pos, 1.0f));
 }
 
 void Player::moveLeft(float amount) {
 	pos += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
-	setSpherePos(pos);
+	setSpherePos(glm::vec4(pos, 1.0f));
 }
 
 void Player::rotateX(float angle) {

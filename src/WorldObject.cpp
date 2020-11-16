@@ -5,11 +5,11 @@
  *      Author: marvi
  */
 
+#include <WorldObject.hpp>
+#include <loadShader.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <glm\gtx\rotate_vector.hpp>
-#include <loadShader.hpp>
-#include <WorldObject.hpp>
 
 WorldObject::WorldObject(float posX, float posY, float posZ) :
 		programID(
