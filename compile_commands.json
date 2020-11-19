@@ -1,0 +1,199 @@
+[
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/Animation.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/Animation.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/Animation.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/AnimTest.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/AnimTest.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/AnimTest.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/ComposedObject.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/ComposedObject.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/ComposedObject.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/Controler.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/Controler.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/Controler.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/CubeTest.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/CubeTest.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/CubeTest.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/loadObject.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/loadObject.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/loadObject.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/loadShader.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/loadShader.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/loadShader.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/main.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/main.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/main.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/Mesh.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/Mesh.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/Mesh.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/Model.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/Model.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/Model.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/NPCSimple.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/NPCSimple.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/NPCSimple.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/Player.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/Player.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/Player.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/rpy.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/rpy.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/rpy.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/Solid.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/Solid.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/Solid.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/View.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/View.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/View.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -o CMakeFiles/game.dir/WorldObject.cpp.o -c /home/marvin/Documents/projects/ravenengine/src/WorldObject.cpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/src/WorldObject.cpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/Animation.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/Animation.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/Mesh.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/Mesh.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/WorldObject.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/WorldObject.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/loadObject.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/loadObject.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/ComposedObject.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/ComposedObject.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/AnimTest.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/AnimTest.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/Controler.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/Controler.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/View.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/View.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/Model.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/Model.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/Player.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/Player.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/Solid.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/Solid.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/ArrayVector2D.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/ArrayVector2D.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/rpy.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/rpy.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/CubeTest.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/CubeTest.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/loadShader.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/loadShader.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/Documents/projects/ravenengine/include/NPCSimple.hpp",
+  "file": "/home/marvin/Documents/projects/ravenengine/include/NPCSimple.hpp"
+},
+
+{
+  "directory": "/home/marvin/Documents/projects/ravenengine/build/src",
+  "command": "/usr/bin/c++ -I/home/marvin/Documents/projects/ravenengine/include -I/home/marvin/lib/stb -c /home/marvin/lib/stb/stb_image.h",
+  "file": "/home/marvin/lib/stb/stb_image.h"
+}
+]

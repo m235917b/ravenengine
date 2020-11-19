@@ -1,0 +1,9 @@
+Generate build from CMakeLists.txt:
+From root dir:
+  mkdir build
+  cd build
+  cmake ..
+  make
+
+Generate compile_commands.json with headers:
+  compdb -p build/ list > compile_commands.json

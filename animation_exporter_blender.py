@@ -13,12 +13,12 @@ action = bpy.data.actions["ArmatureAction.001"]
 for fcu in action.fcurves:
     for keyframe in fcu.keyframe_points:
         keyframes.append(int(keyframe.co[0]))
-      
-#remove duplicates  
+
+#remove duplicates
 keyframes = list(dict.fromkeys(keyframes))
 
 sce = bpy.context.scene
-        
+
 for frame in keyframes:
     sce.frame_set(frame)
     bpy.context.view_layer.update()
