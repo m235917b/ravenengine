@@ -171,22 +171,6 @@ inline float max(triangle &t1, Axis a) {
 	return p1 >= p2 && p1 >= p3 ? p1 : p2 >= p3 ? p2 : p3;
 }
 
-/*inline Tuple<unsigned int> findGap(std::shared_ptr<Solid> o,
- ArrayVector2D<int> &av, unsigned int offset, Axis a) {
- if (av.size() < 2 + offset) {
- return Tuple<unsigned int>::empty();
- }
-
- for (unsigned int i = offset; i < av.size() - 1; ++i) {
- if (max(o->getPolygon().at(av.at(i)), a)
- < min(o->getPolygon().at(av.at(i + 1)), a)) {
- return Tuple<unsigned int>::of(i, i + 1);
- }
- }
-
- return Tuple<unsigned int>::empty();
- }*/
-
 inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 		Axis a) {
 	unsigned int i, j;
@@ -237,142 +221,6 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 		i = 0;
 		j = 0;
 
-		/*ArrayVector2D<int> *inmin;
-		 ArrayVector2D<int> *inmax;
-		 ArrayVector2D<int> *outmin;
-		 ArrayVector2D<int> *outmax;
-		 Solid *omin;
-		 Solid *omax;
-
-		 if (min(o1->getPolygon().at(in1->at(i)), a)
-		 <= min(o2->getPolygon().at(in2->at(j)), a)) {
-		 inmin = in1;
-		 inmax = in2;
-		 outmin = out1;
-		 outmax = out2;
-		 omin = o1.get();
-		 omax = o2.get();
-		 } else {
-		 inmin = in2;
-		 inmax = in1;
-		 outmin = out2;
-		 outmax = out1;
-		 omin = o2.get();
-		 omax = o1.get();
-		 }
-
-		 while (i < inmin->size() && j < inmax->size()) {
-		 if (min(o1->getPolygon().at(in1->at(i)), a)
-		 <= min(o2->getPolygon().at(in2->at(j)), a)) {
-		 inmin = in1;
-		 inmax = in2;
-		 outmin = out1;
-		 outmax = out2;
-		 omin = o1.get();
-		 omax = o2.get();
-		 } else {
-		 inmin = in2;
-		 inmax = in1;
-		 outmin = out2;
-		 outmax = out1;
-		 omin = o2.get();
-		 omax = o1.get();
-		 }
-
-		 //copy until next gap in inmin is found
-		 while (i + 1 < inmin->size()
-		 && max(omin->getPolygon().at(inmin->at(i)), a)
-		 > min(omin->getPolygon().at(inmin->at(i + 1)), a)) {
-		 if (!outmin->isEmpty() && outmin->head() != inmin->at(i)) {
-		 outmin->push_back(inmin->at(i));
-		 }
-		 std::cout << inmin->at(i) << "\n";
-		 outmin->push_back(inmin->at(++i));
-		 }
-
-		 std::cout << "->\n";
-
-		 //if groups don't collide, clear smaller group
-		 if (max(omin->getPolygon().at(inmin->at(i)), a)
-		 < min(omax->getPolygon().at(inmax->at(j)), a)) {
-		 outmin->clearCurrent();
-		 }
-
-		 //copy until next gap in inmax is found
-		 while (j + 1 < inmax->size()
-		 && max(omax->getPolygon().at(inmax->at(j)), a)
-		 > min(omax->getPolygon().at(inmax->at(j + 1)), a)) {
-		 if (!outmax->isEmpty() && outmax->head() != inmax->at(j)) {
-		 outmax->push_back(inmax->at(j));
-		 }
-		 outmax->push_back(inmax->at(++j));
-		 }
-
-		 //if gap splits both groups
-		 if (++i < inmin->size()) {
-		 if (min(omin->getPolygon().at(inmin->at(i)), a)
-		 > max(omax->getPolygon().at(inmax->at(j)), a)) {
-		 outmin->addList();
-		 outmax->addList();
-		 } else {
-		 ++j;
-		 }
-		 } else if (outmin->isEmpty()) {
-		 outmax->clearCurrent();
-		 }
-		 }*/
-
-		/*//copy until next gap in in1 is found
-		 while (i + 1 < in1->size()
-		 && max(o1->getPolygon().at(i), a)
-		 >= min(o1->getPolygon().at(i + 1), a)) {
-		 if (!out1->isEmpty() && out1->head() != in1->at(i)) {
-		 out1->push_back(in1->at(i));
-		 }
-		 out1->push_back(in1->at(++i));
-		 }
-
-		 //copy until next gap in in2 is found
-		 while (j + 1 < in2->size()
-		 && max(o2->getPolygon().at(j), a)
-		 >= min(o2->getPolygon().at(j + 1), a)) {
-		 if (!out2->isEmpty() && out2->head() != in2->at(j)) {
-		 out2->push_back(in2->at(j));
-		 }
-		 out2->push_back(in2->at(++j));
-		 }
-
-		 if (!out1->isEmpty() && !out2->isEmpty()) {
-		 //check which interval has biggest max
-		 if (max(o1->getPolygon().at(out1->head()), a)
-		 <= max(o2->getPolygon().at(out2->head()), a)) {
-		 //do they collide?
-		 if (max(o1->getPolygon().at(out1->head()), a)
-		 < min(o2->getPolygon().at(out2->head()), a)) {
-		 //if not, delete smaller group
-		 out1->clearCurrent();
-
-		 //does bigger group collide with next element?
-		 if (i + 1 >= in1->size()
-		 || min(o1->getPolygon().at(in1->at(i + 1)), a)
-		 > max(o2->getPolygon().at(out2->head()),
-		 a)) {
-		 //if not, delete bigger group too
-		 out2->clearCurrent();
-		 }
-		 } else {
-		 //does bigger group collide with next element?
-		 if (i + 1 >= in1->size()
-		 || min(o1->getPolygon().at(in1->at(i + 1)), a)
-		 > max(o2->getPolygon().at(out2->head()),
-		 a)) {
-		 //if not, cut lists
-		 out1->addList();
-		 out2->addList();
-		 }
-		 }
-		 }
-		 }*/
 		bool sw = false;
 
 		if (i < in1->size() && j < in2->size()) {
@@ -382,7 +230,6 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 
 		std::cout << "->" << in1->size() << "\n";
 		std::cout << "->" << in2->size() << "\n";
-		//while (!in1->isEmpty() && i < in1->size() - 1 && )
 		while (i < in1->size() && j < in2->size()) {
 			auto &t1 = o1->getPolygon().at(in1->at(i));
 			auto &t2 = o2->getPolygon().at(in2->at(j));
@@ -444,24 +291,6 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 					}
 					++j;
 				}
-
-				///---
-
-				/*if (out1->isEmpty() || out1->head() != in1->at(i)) {
-				 std::cout << "ggg\n";
-				 out1->push_back(in1->at(i));
-				 }
-
-				 if (out2->isEmpty() || out2->head() != in2->at(j)) {
-				 std::cout << "ggg\n";
-				 out2->push_back(in2->at(j));
-				 }
-
-				 if (min(t1, a) <= min(t2, a)) {
-				 ++i;
-				 } else {
-				 ++j;
-				 }*/
 			} else {
 				if (min(t1, a) <= min(t2, a)) {
 					//out2->addList();
@@ -487,55 +316,9 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 			}
 		}
 
-		/*if (!out2->isEmpty() && i < in1->size()
-		 && (out1->isEmpty() || out1->head() != in1->at(i))) {
-		 while (i < in1->size()) {
-		 auto &t1 = o1->getPolygon().at(in1->at(i));
-		 auto &t2 = o2->getPolygon().at(out2->head());
-
-		 if (f(t1, t2)) {
-		 out1->push_back(in1->at(i));
-		 }
-
-		 ++i;
-		 }
-		 }
-
-		 if (!out1->isEmpty() && j < in2->size()
-		 && (out2->isEmpty() || out2->head() != in2->at(j))) {
-		 while (j < in2->size()) {
-		 auto &t1 = o1->getPolygon().at(out1->head());
-		 auto &t2 = o2->getPolygon().at(in2->at(j));
-
-		 if (f(t1, t2)) {
-		 out2->push_back(in2->at(j));
-		 }
-
-		 ++j;
-		 }
-		 }*/
-
 		out1->addList();
 		out2->addList();
 	}
-
-	/*for (unsigned int i = 0; i < in1.size(); ++i) {
-	 out1.addList();
-	 out2.addList();
-
-	 std::cout << "->" << in2.size() << "\n";
-
-	 while (j < in2.size() && f(p1.at(in1.at(i)), p2.at(in2.at(j)))) {
-	 out2.push_back(in2.at(j++));
-	 }
-
-	 std::cout << "->" << in2.size() << "\n";
-
-	 while (i < in1.size() && !out2.isEmpty()
-	 && f(p1.at(in1.at(i)), p2.at(out2.head()))) {
-	 out1.push_back(in1.at(i++));
-	 }
-	 }*/
 }
 
 inline void sortCollisionsTriangle(std::shared_ptr<Solid> o1,
@@ -553,51 +336,7 @@ inline void sortCollisionsTriangle(std::shared_ptr<Solid> o1,
 				return min(lo, x) == min(hi, x) ?
 						max(lo, x) <= max(hi, x) : min(lo, x) <= min(hi, x);
 			});
-	/*sweepTriangle(o1, o2, o1->getSolidSortX(), o2->getSolidSortX(),
-	 o1->getSolidSortY(), o2->getSolidSortY(),
-	 [](triangle &t1, triangle &t2) {
-	 auto min1 = min(t1, x);
-	 auto min2 = min(t2, x);
-	 auto max1 = max(t1, x);
-	 auto max2 = max(t2, x);
-	 std::cout << "-> " << min1 << ", " << min2 << ", " << max1
-	 << ", " << max2 << "\n";
-	 return min1 <= min2 ? max1 >= min2 : max2 >= min1;
-	 });*/
 	sweepTriangle(o1, o2, x);
-
-	std::cout << "X";
-	auto poly = o1->getPolygon();
-	for (unsigned int l = 0; l < o1->getSolidSortX().numLists(); ++l) {
-		o1->getSolidSortX().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o1->getSolidSortX().size(); ++i) {
-			std::cout << " " << o1->getSolidSortX().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
-
-	std::cout << "X";
-	for (unsigned int l = 0; l < o2->getSolidSortX().numLists(); ++l) {
-		o2->getSolidSortX().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o2->getSolidSortX().size(); ++i) {
-			std::cout << " " << o2->getSolidSortX().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
-
-	std::cout << "X";
-	for (unsigned int l = 0; l < o2->getSolidSortX().numLists(); ++l) {
-		o2->getSolidSortX().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o2->getSolidSortX().size(); ++i) {
-			std::cout << " "
-					<< min(o2->getPolygon().at(o2->getSolidSortX().at(i)), x)
-					<< " ";
-		}
-	}
-	std::cout << "|\n";
 
 	mergesort<triangle>(o1->getPolygon(), o1->getSolidSortY(), o1->getAux(),
 			[](triangle &lo, triangle &hi) {
@@ -609,36 +348,7 @@ inline void sortCollisionsTriangle(std::shared_ptr<Solid> o1,
 				return min(lo, y) == min(hi, y) ?
 						max(lo, y) <= max(hi, y) : min(lo, y) <= min(hi, y);
 			});
-	/*sweepTriangle(o1, o2, o1->getSolidSortY(), o2->getSolidSortY(),
-	 o1->getSolidSortZ(), o2->getSolidSortZ(),
-	 [](triangle &t1, triangle &t2) {
-	 auto min1 = min(t1, y);
-	 auto min2 = min(t2, y);
-	 auto max1 = max(t1, y);
-	 auto max2 = max(t2, y);
-	 return min1 <= min2 ? max1 >= min2 : max2 >= min1;
-	 });*/
 	sweepTriangle(o1, o2, y);
-
-	std::cout << "Y";
-	for (unsigned int l = 0; l < o1->getSolidSortY().numLists(); ++l) {
-		o1->getSolidSortY().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o1->getSolidSortY().size(); ++i) {
-			std::cout << " " << o1->getSolidSortY().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
-
-	std::cout << "Y";
-	for (unsigned int l = 0; l < o2->getSolidSortY().numLists(); ++l) {
-		o2->getSolidSortY().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o2->getSolidSortY().size(); ++i) {
-			std::cout << " " << o2->getSolidSortY().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
 
 	mergesort<triangle>(o1->getPolygon(), o1->getSolidSortZ(), o1->getAux(),
 			[](triangle &lo, triangle &hi) {
@@ -650,59 +360,11 @@ inline void sortCollisionsTriangle(std::shared_ptr<Solid> o1,
 				return min(lo, z) == min(hi, z) ?
 						max(lo, z) <= max(hi, z) : min(lo, z) <= min(hi, z);
 			});
-	/*sweepTriangle(o1, o2, o1->getSolidSortZ(), o2->getSolidSortZ(),
-	 o1->getSolidSort(), o2->getSolidSort(),
-	 [](triangle &t1, triangle &t2) {
-	 auto min1 = min(t1, z);
-	 auto min2 = min(t2, z);
-	 auto max1 = max(t1, z);
-	 auto max2 = max(t2, z);
-	 std::cout << "-> " << min1 << ", " << min2 << ", " << max1
-	 << ", " << max2 << "\n";
-	 return min1 <= min2 ? max1 >= min2 : max2 >= min1;
-	 });*/
 	sweepTriangle(o1, o2, z);
 
-	std::cout << "Z";
-	for (unsigned int l = 0; l < o1->getSolidSortZ().numLists(); ++l) {
-		o1->getSolidSortZ().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o1->getSolidSortZ().size(); ++i) {
-			std::cout << " " << o1->getSolidSortZ().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
-
-	std::cout << "Z";
-	for (unsigned int l = 0; l < o2->getSolidSortZ().numLists(); ++l) {
-		o2->getSolidSortZ().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o2->getSolidSortZ().size(); ++i) {
-			std::cout << " " << o2->getSolidSortZ().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
-
-	for (unsigned int l = 0; l < o1->getSolidSort().numLists(); ++l) {
-		o1->getSolidSort().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o1->getSolidSort().size(); ++i) {
-			std::cout << " " << o1->getSolidSort().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
-
-	for (unsigned int l = 0; l < o2->getSolidSort().numLists(); ++l) {
-		o2->getSolidSort().getList(l);
-		std::cout << "|";
-		for (unsigned int i = 0; i < o2->getSolidSort().size(); ++i) {
-			std::cout << " " << o2->getSolidSort().at(i) << " ";
-		}
-	}
-	std::cout << "|\n";
 	o1->getSolidSort().getList(0);
 	if (!o1->getSolidSort().isEmpty()) {
-		//exit(0);
+		exit(0);
 	}
 }
 

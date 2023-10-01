@@ -1,4 +1,4 @@
-# Install script for directory: /home/marvin/Documents/projects/ravenengine/src
+# Install script for directory: /home/marvin/projects/ravenengine/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

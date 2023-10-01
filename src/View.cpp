@@ -18,8 +18,8 @@
  * in the render() method.
  */
 View::View() {
-	SCREEN_WIDTH = 1820;
-	SCREEN_HEIGHT = 1024;
+	SCREEN_WIDTH = 2560;
+	SCREEN_HEIGHT = 1440;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
