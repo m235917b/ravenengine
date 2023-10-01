@@ -1,0 +1,4 @@
+The algorithm that sorts objects (not the triangles!) for possible collisions (rpy.cpp) is wrong.
+It only compares successive objects and if they don't collide, it assumes that the next object doesn't collide with
+any previous object. This however is wrong, because one of the previous objects can be much bigger, than the immediate
+predecessor.

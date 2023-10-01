@@ -21,14 +21,14 @@ Model::Model() :
 	objects.push_back(
 			std::shared_ptr<WorldObject>(new AnimTest(10.0f, 0.0f, -200.0f)));
 
-	solids.push_back(
-			std::shared_ptr<rpy::Solid>(new Cube(10.0f, 0.0f, -20.0f)));
+	/*solids.push_back(
+			std::shared_ptr<rpy::Solid>(new Cube(10.0f, 0.0f, -20.0f)));*/
 	solids.push_back(
 			std::shared_ptr<rpy::Solid>(new Cube(-10.1f, 0.0f, -20.0f)));
 	solids.push_back(
 			std::shared_ptr<rpy::Solid>(new Cube(100.0f, 1.0f, -200.0f)));
 	solids.push_back(
-			std::shared_ptr<rpy::Solid>(new Cube(10.0f, 1.0f, -23.5f)));
+			std::shared_ptr<rpy::Solid>(new Cube(10.0f, -1.0f, -23.5f)));
 	solids.push_back(
 			std::shared_ptr<rpy::Solid>(new Cube(-20.0f, 0.0f, -20.0f)));
 	solids.push_back(

@@ -376,8 +376,7 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 		bool sw = false;
 
 		if (i < in1->size() && j < in2->size()) {
-			sw = min(o1->getPolygon().at(in1->at(i)), a)
-					<= min(o2->getPolygon().at(in2->at(j)), a);
+			sw = min(o1->getPolygon().at(in1->at(i)), a) <= min(o2->getPolygon().at(in2->at(j)), a);
 		}
 
 		std::cout << "->" << in1->size() << "\n";
@@ -396,51 +395,50 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 					std::cout << out2->head() << "...\n";
 
 				if (sw) {
-					if (out1->isEmpty() || out1->head() != in1->at(i)) {
-						std::cout << "ggg\n";
-						out1->push_back(in1->at(i));
-						if (i + 1 == in1->size()) {
-							while (j < in2->size()) {
-								auto &t1 = o1->getPolygon().at(in1->at(i));
-								auto &t2 = o2->getPolygon().at(in2->at(j));
+					if (out2->isEmpty() || out2->head() != in2->at(j)) {
+						out2->push_back(in2->at(j));
+					}
 
-								if (f(t1, t2)) {
-									if (out2->isEmpty()
-											|| out2->head() != in2->at(j)) {
-										out2->push_back(in2->at(j));
-									}
+					out1->push_back(in1->at(i));
+
+					if (i + 1 == in1->size()) {
+						while (j < in2->size()) {
+							// auto &t1 = o1->getPolygon().at(in1->at(i));
+							auto &t2 = o2->getPolygon().at(in2->at(j));
+
+							if (f(t1, t2)) {
+								if (out2->isEmpty()
+										|| out2->head() != in2->at(j)) {
+									out2->push_back(in2->at(j));
 								}
-
-								++j;
 							}
+
+							++j;
 						}
-					} else {
-						out2->addList();
 					}
 
 					++i;
 				} else {
-					if (out2->isEmpty() || out2->head() != in2->at(j)) {
-						std::cout << "ggg\n";
-						out2->push_back(in2->at(j));
+					if (out1->isEmpty() || out1->head() != in1->at(i)) {
+						out1->push_back(in1->at(i));
+					}
 
-						if (j + 1 == in2->size()) {
-							while (i < in1->size()) {
-								auto &t1 = o1->getPolygon().at(in1->at(i));
-								auto &t2 = o2->getPolygon().at(in2->at(j));
+					out2->push_back(in2->at(j));
 
-								if (f(t1, t2)) {
-									if (out1->isEmpty()
-											|| out1->head() != in1->at(i)) {
-										out1->push_back(in1->at(i));
-									}
+					if (j + 1 == in2->size()) {
+						while (i < in1->size()) {
+							auto &t1 = o1->getPolygon().at(in1->at(i));
+							//auto &t2 = o2->getPolygon().at(in2->at(j));
+
+							if (f(t1, t2)) {
+								if (out1->isEmpty()
+										|| out1->head() != in1->at(i)) {
+									out1->push_back(in1->at(i));
 								}
-
-								++i;
 							}
+
+							++i;
 						}
-					} else {
-						out1->addList();
 					}
 					++j;
 				}
@@ -463,6 +461,17 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 				 ++j;
 				 }*/
 			} else {
+				/*if (sw) {
+					++i;
+				} else {
+					++j;
+				}*/
+
+				/*if (i < in1->size() && j < in2->size()) {
+					t1 = o1->getPolygon().at(in1->at(i));
+					t2 = o2->getPolygon().at(in2->at(j));
+				}*/
+
 				if (min(t1, a) <= min(t2, a)) {
 					//out2->addList();
 					//++i;
@@ -515,8 +524,8 @@ inline void sweepTriangle(std::shared_ptr<Solid> o1, std::shared_ptr<Solid> o2,
 		 }
 		 }*/
 
-		out1->addList();
-		out2->addList();
+		//out1->addList();
+		//out2->addList();
 	}
 
 	/*for (unsigned int i = 0; i < in1.size(); ++i) {
@@ -701,8 +710,8 @@ inline void sortCollisionsTriangle(std::shared_ptr<Solid> o1,
 	}
 	std::cout << "|\n";
 	o1->getSolidSort().getList(0);
-	if (!o1->getSolidSort().isEmpty()) {
-		//exit(0);
+	if (!o1->getSolidSort().isEmpty() || !o2->getSolidSort().isEmpty()) {
+		exit(0);
 	}
 }
 
@@ -711,7 +720,7 @@ inline void sortCollisions(std::vector<std::shared_ptr<Solid>> &objects) {
 	solidsortz.clear();
 	solidsort.clear();
 
-//sort for possible collisions in x-direction
+	//sort for possible collisions in x-direction
 	mergesort<std::shared_ptr<Solid>>(objects, solidsortx, aux,
 			[](std::shared_ptr<Solid> &lo, std::shared_ptr<Solid> &hi) {
 				return lo->getSphere().pos.x - lo->getSphere().rad
@@ -721,7 +730,7 @@ inline void sortCollisions(std::vector<std::shared_ptr<Solid>> &objects) {
 		return abs(s2.pos.x - s1.pos.x) <= s1.rad + s2.rad;
 	});
 
-//sort for possible collisions in z-direction
+	//sort for possible collisions in z-direction
 	mergesort<std::shared_ptr<Solid>>(objects, solidsortz, aux,
 			[](std::shared_ptr<Solid> &lo, std::shared_ptr<Solid> &hi) {
 				return lo->getSphere().pos.z - lo->getSphere().rad
@@ -731,7 +740,7 @@ inline void sortCollisions(std::vector<std::shared_ptr<Solid>> &objects) {
 		return abs(s2.pos.z - s1.pos.z) <= s1.rad + s2.rad;
 	});
 
-//sort for possible collisions in y-direction
+	//sort for possible collisions in y-direction
 	mergesort<std::shared_ptr<Solid>>(objects, solidsorty, aux,
 			[](std::shared_ptr<Solid> &lo, std::shared_ptr<Solid> &hi) {
 				return lo->getSphere().pos.y - lo->getSphere().rad

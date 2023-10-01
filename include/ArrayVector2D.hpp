@@ -49,6 +49,7 @@ public:
 	}
 
 	bool isEmpty() {
+		// TODO: what if empty list is in front of full list
 		return head_ptr <= indices.at(active_list);
 	}
 
