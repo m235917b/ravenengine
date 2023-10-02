@@ -8,19 +8,19 @@
 #ifndef INCLUDE_RPY_HPP_
 #define INCLUDE_RPY_HPP_
 
-#include <vector>
+#include <Solid.hpp>
 #include <functional>
 #include <memory>
-#include <Solid.hpp>
+#include <vector>
 
 namespace rpy {
 
-enum Axis {x, y, z};
+enum Axis { x, y, z };
 
-void initSolids(unsigned int count);
+void initSolids(std::vector<std::shared_ptr<rpy::Solid>> &);
 
-void handleCollisions(std::vector<std::shared_ptr<Solid>> &objects);
+void handleCollisions();
 
-}
+} // namespace rpy
 
 #endif /* INCLUDE_RPY_HPP_ */

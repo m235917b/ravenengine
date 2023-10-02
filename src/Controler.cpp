@@ -12,7 +12,7 @@
 Controler::Controler() :
 		view(), model(), player(model.getPlayer()) {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	rpy::initSolids(model.getSolids().size());
+	rpy::initSolids(model.getSolids());
 }
 
 Controler::~Controler() {
@@ -100,7 +100,7 @@ void Controler::run() {
 			player->moveLeft(-0.5f);
 		}
 
-		rpy::handleCollisions(model.getSolids());
+		rpy::handleCollisions();
 
 		view.render(model);
 	}
