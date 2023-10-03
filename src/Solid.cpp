@@ -89,12 +89,13 @@ void Solid::fillTriangles(std::vector<GLfloat> &vertices,
 
   setSphere();
 
-  solidsortx = ArrayVector2D<std::shared_ptr<triangle>>(polygon.size());
-  solidsort = ArrayVector2D<std::shared_ptr<triangle>>(polygon.size());
+  solidsorta = ArrayVector2D<std::shared_ptr<triangle>>(polygon.size());
+  solidsortb = ArrayVector2D<std::shared_ptr<triangle>>(polygon.size());
+  solidsortc = ArrayVector2D<std::shared_ptr<triangle>>(polygon.size());
   aux = std::vector<std::shared_ptr<triangle>>(polygon.size());
 
   for (triangle &t : polygon) {
-    solidsortx.push_back(std::make_shared<triangle>(t));
+    solidsorta.push_back(std::make_shared<triangle>(t));
   }
 }
 
@@ -108,12 +109,16 @@ void Solid::setSpherePos(glm::vec4 v) { bs.pos = v; }
 
 std::vector<triangle> &Solid::getPolygon() { return polygon; }
 
-ArrayVector2D<std::shared_ptr<triangle>> &Solid::getSolidSortX() {
-  return solidsortx;
+ArrayVector2D<std::shared_ptr<triangle>> &Solid::getSolidSortA() {
+  return solidsorta;
 }
 
-ArrayVector2D<std::shared_ptr<triangle>> &Solid::getSolidSort() {
-  return solidsort;
+ArrayVector2D<std::shared_ptr<triangle>> &Solid::getSolidSortB() {
+  return solidsortb;
+}
+
+ArrayVector2D<std::shared_ptr<triangle>> &Solid::getSolidSortC() {
+  return solidsortc;
 }
 
 std::vector<std::shared_ptr<triangle>> &Solid::getAux() { return aux; }

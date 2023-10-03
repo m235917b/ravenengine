@@ -39,8 +39,9 @@ private:
   std::vector<vertex> vertices;
   std::vector<vertex> verticesLocal;
   std::vector<triangle> polygon;
-  ArrayVector2D<std::shared_ptr<triangle>> solidsortx;
-  ArrayVector2D<std::shared_ptr<triangle>> solidsort;
+  ArrayVector2D<std::shared_ptr<triangle>> solidsorta;
+  ArrayVector2D<std::shared_ptr<triangle>> solidsortb;
+  ArrayVector2D<std::shared_ptr<triangle>> solidsortc;
   std::vector<std::shared_ptr<triangle>> aux;
   sphere bs;
 
@@ -64,9 +65,11 @@ public:
 
   std::vector<triangle> &getPolygon();
 
-  ArrayVector2D<std::shared_ptr<triangle>> &getSolidSortX();
+  ArrayVector2D<std::shared_ptr<triangle>> &getSolidSortA();
 
-  ArrayVector2D<std::shared_ptr<triangle>> &getSolidSort();
+  ArrayVector2D<std::shared_ptr<triangle>> &getSolidSortB();
+
+  ArrayVector2D<std::shared_ptr<triangle>> &getSolidSortC();
 
   std::vector<std::shared_ptr<triangle>> &getAux();
 
