@@ -8,6 +8,7 @@
 #ifndef COMPOSEDOBJECT_H_
 #define COMPOSEDOBJECT_H_
 
+#include "WorldObject.hpp"
 #include <Animation.hpp>
 #include <Mesh.hpp>
 

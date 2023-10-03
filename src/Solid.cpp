@@ -135,6 +135,6 @@ void Solid::updateVertices() {
 }
 
 void Solid::move(glm::vec3 dir) {
-	pos += dir;
-	setSpherePos(glm::vec4(pos, 1.0f));
+	// pos += dir;
+	// setSpherePos(glm::vec4(pos, 1.0f));
 }

@@ -42,6 +42,7 @@ void initSolids(std::vector<std::shared_ptr<rpy::Solid>> &objects) {
 inline unsigned int min(unsigned int x, unsigned int y) {
   return (x < y) ? x : y;
 }
+	// 
 
 template <typename T>
 inline void merge(unsigned int lo, unsigned int mid, unsigned int hi,
@@ -441,8 +442,8 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
     }*/
   }
 
-  o1->move(n_o2 * 0.5f);
-  o2->move(n_o1 * 0.5f);
+  o1->move(n_o2 * 0.6f);
+  o2->move(n_o1 * 0.6f);
 }
 
 void handleCollisions() {
@@ -488,7 +489,7 @@ void handleCollisions() {
           // solidsort.at(i)->getSolidSortC().clear();
           if (!solidsort.at(i)->getSolidSortC().isEmpty()) {
             std::cout << "exit\n";
-            exit(0);
+            // exit(0);
           }
         }
       }

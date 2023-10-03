@@ -1,17 +1,15 @@
 /*
- * CubeTest.h
- *
- *  Created on: Nov 1, 2020
- *      Author: marvi
+ * Wall.hpp
+ * Author: marvi
  */
 
-#ifndef TESTCUBE_H
-#define TESTCUBE_H
+#ifndef WALL_H
+#define WALL_H
 
 #include <GL/glew.h>
 #include <Solid.hpp>
 
-class Cube: public rpy::Solid {
+class Wall: public rpy::Solid {
 private:
 
 protected:
@@ -23,7 +21,7 @@ protected:
 	void run() override;
 
 public:
-	Cube(float posX, float posY, float posZ);
+	Wall(float posX, float posY, float posZ);
 
 	void move(glm::vec3 dir) override;
 };

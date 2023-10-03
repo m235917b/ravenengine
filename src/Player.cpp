@@ -5,6 +5,7 @@
  *      Author: marvi
  */
 
+#include "Solid.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <Player.hpp>
 
@@ -106,10 +107,10 @@ glm::vec3 Player::getUp() {
 	return rot;
 }
 
-/*void Player::move(glm::vec3 dir) {
+void Player::move(glm::vec3 dir) {
 	pos += dir;
 	setSpherePos(glm::vec4(pos, 1.0f));
-}*/
+}
 
 void Player::moveForeward(float amount) {
 	pos += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);

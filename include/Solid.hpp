@@ -75,7 +75,7 @@ public:
 
   void updateVertices();
 
-  void move(glm::vec3 dir);
+  virtual void move(glm::vec3 dir);
 };
 
 } // namespace rpy
