@@ -305,9 +305,11 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
   o1->getSolidSortC().clear();
   o2->getSolidSortC().clear();
 
-  for (int i = 0; i < o1->getSolidSortB().size(); ++i) {
-    auto collision = true;
+  auto n_o1 = glm::vec3(0.0);
+  auto n_o2 = glm::vec3(0.0);
 
+  for (int i = 0; i < o1->getSolidSortB().size(); ++i) {
+    // auto collision = false;
     for (int j = 0; j < o2->getSolidSortB().size(); ++j) {
       const auto t1 = o1->getSolidSortB().at(i);
       const auto t2 = o2->getSolidSortB().at(j);
@@ -315,9 +317,12 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
       if (max(t1, x) > min(t2, x))
         if (min(t1, y) < max(t2, y) && max(t1, y) > min(t2, y))
           if (min(t1, z) < max(t2, z) && max(t1, z) > min(t2, z)) {
+            auto collision = false;
+
             // normal vector of triangle plane of t2
             const auto n_t2 =
-                glm::normalize(t2->a->normal + t2->b->normal + t2->c->normal);
+                glm::normalize(glm::cross(glm::vec3(t2->b->pos - t2->a->pos),
+                                          glm::vec3(t2->c->pos - t2->a->pos)));
 
             // calculate on which side of t2 each point of t1 is
             const auto side_a =
@@ -333,25 +338,29 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
               // edge a-b of t1 as normal vector
               const auto n = glm::normalize(t1->b->pos - t1->a->pos);
               // project the vertices of t2 on the subspace (plane) defined by n
-              const auto p_a = t2->a->pos - glm::dot(t2->a->pos, n) * n;
-              const auto p_b = t2->b->pos - glm::dot(t2->b->pos, n) * n;
-              const auto p_c = t2->c->pos - glm::dot(t2->c->pos, n) * n;
+              const auto p_a =
+                  glm::vec3(t2->a->pos - glm::dot(t2->a->pos, n) * n);
+              const auto p_b =
+                  glm::vec3(t2->b->pos - glm::dot(t2->b->pos, n) * n);
+              const auto p_c =
+                  glm::vec3(t2->c->pos - glm::dot(t2->c->pos, n) * n);
               // project the edge a-b of t1 on the subspace (plane) defined by n
-              const auto p_e_ab = t1->a->pos - glm::dot(t1->a->pos, n) * n;
+              const auto p_e_ab =
+                  glm::vec3(t1->a->pos - glm::dot(t1->a->pos, n) * n);
 
               /* Check if the projected point p_e_ab lies inside the projected
                * triangle defined by p_a, p_b and p_c. In this case, the edge
                * a-b crossed the triangle and t1 and t2 must be colliding. */
 
-              const auto angle1 = glm::dot(p_e_ab - p_a, p_e_ab - p_b);
-              const auto angle2 = glm::dot(p_e_ab - p_a, p_e_ab - p_c);
-              const auto angle3 = glm::dot(p_e_ab - p_b, p_e_ab - p_c);
+              const auto n1 = glm::cross(p_b - p_e_ab, p_c - p_e_ab);
+              const auto n2 = glm::cross(p_c - p_e_ab, p_a - p_e_ab);
+              const auto n3 = glm::cross(p_a - p_e_ab, p_b - p_e_ab);
 
-              /* if all 3 vectors from p_a, p_b and p_c to p_e_ab do not point
-               * in the same direction, p_e_ab lies inside the triangle */
+              const auto angle1 = glm::dot(n1, n2);
+              const auto angle2 = glm::dot(n1, n3);
 
-              if (angle1 <= 0 || angle2 <= 0 || angle3 <= 0) {
-                exit(0);
+              if (angle1 > 0 && angle2 > 0) {
+                // exit(0);
                 collision = true;
               }
             } // repeat the same for the other 2 edges of t1
@@ -359,24 +368,28 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
               // edge a-b of t1 as normal vector
               const auto n = glm::normalize(t1->c->pos - t1->b->pos);
               // project the vertices of t2 on the subspace (plane) defined by n
-              const auto p_a = t2->a->pos - glm::dot(t2->a->pos, n) * n;
-              const auto p_b = t2->b->pos - glm::dot(t2->b->pos, n) * n;
-              const auto p_c = t2->c->pos - glm::dot(t2->c->pos, n) * n;
+              const auto p_a =
+                  glm::vec3(t2->a->pos - glm::dot(t2->a->pos, n) * n);
+              const auto p_b =
+                  glm::vec3(t2->b->pos - glm::dot(t2->b->pos, n) * n);
+              const auto p_c =
+                  glm::vec3(t2->c->pos - glm::dot(t2->c->pos, n) * n);
               // project the edge a-b of t1 on the subspace (plane) defined by n
-              const auto p_e_bc = t1->b->pos - glm::dot(t1->b->pos, n) * n;
+              const auto p_e_bc =
+                  glm::vec3(t1->b->pos - glm::dot(t1->b->pos, n) * n);
 
               /* Check if the projected point p_e_ab lies inside the projected
                * triangle defined by p_a, p_b and p_c. In this case, the edge
                * a-b crossed the triangle and t1 and t2 must be colliding. */
 
-              const auto angle1 = glm::dot(p_e_bc - p_a, p_e_bc - p_b);
-              const auto angle2 = glm::dot(p_e_bc - p_a, p_e_bc - p_c);
-              const auto angle3 = glm::dot(p_e_bc - p_b, p_e_bc - p_c);
+              const auto n1 = glm::cross(p_b - p_e_bc, p_c - p_e_bc);
+              const auto n2 = glm::cross(p_c - p_e_bc, p_a - p_e_bc);
+              const auto n3 = glm::cross(p_a - p_e_bc, p_b - p_e_bc);
 
-              /* if all 3 vectors from p_a, p_b and p_c to p_e_ab do not point
-               * in the same direction, p_e_ab lies inside the triangle */
+              const auto angle1 = glm::dot(n1, n2);
+              const auto angle2 = glm::dot(n1, n3);
 
-              if (angle1 <= 0 || angle2 <= 0 || angle3 <= 0) {
+              if (angle1 > 0 && angle2 > 0) {
                 collision = true;
               }
             } else if (side_c <= 0 && side_a >= 0 ||
@@ -384,36 +397,52 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
               // edge a-b of t1 as normal vector
               const auto n = glm::normalize(t1->a->pos - t1->c->pos);
               // project the vertices of t2 on the subspace (plane) defined by n
-              const auto p_a = t2->a->pos - glm::dot(t2->a->pos, n) * n;
-              const auto p_b = t2->b->pos - glm::dot(t2->b->pos, n) * n;
-              const auto p_c = t2->c->pos - glm::dot(t2->c->pos, n) * n;
+              const auto p_a =
+                  glm::vec3(t2->a->pos - glm::dot(t2->a->pos, n) * n);
+              const auto p_b =
+                  glm::vec3(t2->b->pos - glm::dot(t2->b->pos, n) * n);
+              const auto p_c =
+                  glm::vec3(t2->c->pos - glm::dot(t2->c->pos, n) * n);
               // project the edge a-b of t1 on the subspace (plane) defined by n
-              const auto p_e_ca = t1->c->pos - glm::dot(t1->c->pos, n) * n;
+              const auto p_e_ca =
+                  glm::vec3(t1->c->pos - glm::dot(t1->c->pos, n) * n);
 
               /* Check if the projected point p_e_ab lies inside the projected
                * triangle defined by p_a, p_b and p_c. In this case, the edge
                * a-b crossed the triangle and t1 and t2 must be colliding. */
 
-              const auto angle1 = glm::dot(p_e_ca - p_a, p_e_ca - p_b);
-              const auto angle2 = glm::dot(p_e_ca - p_a, p_e_ca - p_c);
-              const auto angle3 = glm::dot(p_e_ca - p_b, p_e_ca - p_c);
+              const auto n1 = glm::cross(p_b - p_e_ca, p_c - p_e_ca);
+              const auto n2 = glm::cross(p_c - p_e_ca, p_a - p_e_ca);
+              const auto n3 = glm::cross(p_a - p_e_ca, p_b - p_e_ca);
 
-              /* if all 3 vectors from p_a, p_b and p_c to p_e_ab do not point
-               * in the same direction, p_e_ab lies inside the triangle */
+              const auto angle1 = glm::dot(n1, n2);
+              const auto angle2 = glm::dot(n1, n3);
 
-              if (angle1 <= 0 || angle2 <= 0 || angle3 <= 0) {
+              if (angle1 > 0 && angle2 > 0) {
                 collision = true;
               }
+            }
+
+            if (collision) {
+              const auto n_t1 =
+                glm::normalize(glm::cross(glm::vec3(t1->b->pos - t1->a->pos),
+                                          glm::vec3(t1->c->pos - t1->a->pos)));
+
+              n_o1 = glm::normalize(n_o1 + n_t1);
+              n_o2 = glm::normalize(n_o2 + n_t2);
             }
           }
     }
 
     // if collision occured, add t1 to list of colliding triangles
-    if (collision) {
+    /*if (collision) {
       o1->getSolidSortC().push_back(o1->getSolidSortB().at(i));
       // o2->getSolidSortC().push_back(o2->getSolidSortB().at(j));
-    }
+    }*/
   }
+
+  o1->move(n_o2 * 0.5f);
+  o2->move(n_o1 * 0.5f);
 }
 
 void handleCollisions() {
@@ -459,7 +488,7 @@ void handleCollisions() {
           // solidsort.at(i)->getSolidSortC().clear();
           if (!solidsort.at(i)->getSolidSortC().isEmpty()) {
             std::cout << "exit\n";
-            // exit(0);
+            exit(0);
           }
         }
       }

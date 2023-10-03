@@ -32,7 +32,7 @@ public:
 	glm::vec3 getLook();
 	glm::vec3 getUp();
 
-	void move(glm::vec3 dir);
+	// void move(glm::vec3 dir);
 	void moveForeward(float amount);
 	void moveLeft(float amount);
 	void rotateY(float angle);

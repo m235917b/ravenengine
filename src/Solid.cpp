@@ -82,7 +82,8 @@ void Solid::fillTriangles(std::vector<GLfloat> &vertices,
     auto n2 = this->vertices.at(indices.at(i + 1)).normal;
     auto n3 = this->vertices.at(indices.at(i + 2)).normal;
 
-    t.n = (n1 + n2 + n3) / 3.0f;
+    t.n = glm::normalize(glm::cross(glm::vec3(t.b->pos - t.a->pos),
+                                    glm::vec3(t.c->pos - t.a->pos)));
 
     polygon.emplace_back(t);
   }
@@ -131,4 +132,9 @@ void Solid::updateVertices() {
   for (unsigned int i = 0; i < verticesLocal.size(); ++i) {
     vertices.at(i).pos = mat * verticesLocal.at(i).pos;
   }
+}
+
+void Solid::move(glm::vec3 dir) {
+	pos += dir;
+	setSpherePos(glm::vec4(pos, 1.0f));
 }

@@ -74,6 +74,8 @@ public:
   std::vector<std::shared_ptr<triangle>> &getAux();
 
   void updateVertices();
+
+  void move(glm::vec3 dir);
 };
 
 } // namespace rpy
