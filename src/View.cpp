@@ -43,7 +43,7 @@ View::View() {
 	// initialize glew
 	glewInit();
 
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0);
 
 	// enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -86,7 +86,7 @@ View::View(const View &that) {
 
 		glewInit();
 
-		SDL_GL_SetSwapInterval(1);
+		SDL_GL_SetSwapInterval(0);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -124,7 +124,7 @@ View& View::operator=(const View &that) {
 
 		glewInit();
 
-		SDL_GL_SetSwapInterval(1);
+		SDL_GL_SetSwapInterval(0);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);

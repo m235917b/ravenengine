@@ -42,7 +42,7 @@ void initSolids(std::vector<std::shared_ptr<rpy::Solid>> &objects) {
 inline unsigned int min(unsigned int x, unsigned int y) {
   return (x < y) ? x : y;
 }
-	// 
+//
 
 template <typename T>
 inline void merge(unsigned int lo, unsigned int mid, unsigned int hi,
@@ -321,17 +321,17 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
             auto collision = false;
 
             // normal vector of triangle plane of t2
-            const auto n_t2 =
+            const auto n_t2 = // t2->n;
                 glm::normalize(glm::cross(glm::vec3(t2->b->pos - t2->a->pos),
                                           glm::vec3(t2->c->pos - t2->a->pos)));
 
             // calculate on which side of t2 each point of t1 is
             const auto side_a =
-                glm::dot(n_t2, glm::vec3(t1->a->pos - t2->a->pos));
+                glm::dot(n_t2, glm::vec3(t2->a->pos - t1->a->pos));
             const auto side_b =
-                glm::dot(n_t2, glm::vec3(t1->b->pos - t2->a->pos));
+                glm::dot(n_t2, glm::vec3(t2->a->pos - t1->b->pos));
             const auto side_c =
-                glm::dot(n_t2, glm::vec3(t1->c->pos - t2->a->pos));
+                glm::dot(n_t2, glm::vec3(t2->a->pos - t1->c->pos));
 
             /* if edge a-b of t1 crosses the plane of t2 (side_a and side_b have
              * opposite signs) */
@@ -425,11 +425,31 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
             }
 
             if (collision) {
-              const auto n_t1 =
-                glm::normalize(glm::cross(glm::vec3(t1->b->pos - t1->a->pos),
-                                          glm::vec3(t1->c->pos - t1->a->pos)));
+              const auto n_t1 = // t1->n;
+                  glm::normalize(
+                      glm::cross(glm::vec3(t1->b->pos - t1->a->pos),
+                                 glm::vec3(t1->c->pos - t1->a->pos)));
 
+              auto v_aa = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->a->pos));
+              auto v_ba = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->b->pos));
+              auto v_ca = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->c->pos));
+              auto max_t1 = (v_aa > v_ba && v_aa > v_ca)
+                                ? v_aa
+                                : (v_ba > v_ca ? v_ba : v_ca);
+              // auto max_n1 = n_t1 * max_t1;
+
+              // n_o1 = glm::length(max_n1) > glm::length(n_o1) ? max_n1 : n_o1;
+              
               n_o1 = glm::normalize(n_o1 + n_t1);
+
+
+              auto max_t2 = (side_a > side_b && side_a > side_c)
+                                ? side_a
+                                : (side_b > side_c ? side_b : side_c);
+              auto max_n2 = n_t2 * max_t2;
+
+              // n_o2 = glm::length(max_n2) > glm::length(n_o2) ? max_n2 : n_o2;
+
               n_o2 = glm::normalize(n_o2 + n_t2);
             }
           }
@@ -488,7 +508,7 @@ void handleCollisions() {
 
           // solidsort.at(i)->getSolidSortC().clear();
           if (!solidsort.at(i)->getSolidSortC().isEmpty()) {
-            std::cout << "exit\n";
+            // std::cout << "exit\n";
             // exit(0);
           }
         }

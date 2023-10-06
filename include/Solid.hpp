@@ -17,6 +17,13 @@
 
 namespace rpy {
 
+typedef struct solidDataStruct {
+  std::vector<GLfloat> vertices;
+  std::vector<GLfloat> normals;
+  std::vector<GLuint> indices;
+  std::vector<GLfloat> texData;
+} solidData;
+
 typedef struct vertex_struct {
   glm::vec4 pos;
   glm::vec3 normal;

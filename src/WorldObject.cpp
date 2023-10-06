@@ -140,9 +140,9 @@ float WorldObject::getAngle() {
 void WorldObject::render(glm::mat4 &projection, glm::mat4 &view) {
 	run();
 
-	glm::mat4 mvp = projection * view * objectspaceTrans
+	glm::mat4 mvp = projection * view
 			* glm::rotate(glm::scale(glm::translate(model, pos), scal), angle,
-					rot);
+					rot) * objectspaceTrans;
 
 	glUseProgram(programID);
 	glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);

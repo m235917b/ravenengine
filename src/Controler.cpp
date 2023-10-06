@@ -7,7 +7,10 @@
 
 #include <Controler.hpp>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_stdinc.h>
+#include <SDL2/SDL_timer.h>
 #include <rpy.hpp>
+#include <iostream>
 
 Controler::Controler() :
 		view(), model(), player(model.getPlayer()) {
@@ -23,6 +26,9 @@ void Controler::run() {
 	bool quit = false;
 	//Event handler
 	SDL_Event e;
+
+	Uint32 ticks = SDL_GetTicks();
+	unsigned int frameCtr = 0;
 
 	while (!quit) {
 		//Handle events on queue
@@ -103,6 +109,13 @@ void Controler::run() {
 		rpy::handleCollisions();
 
 		view.render(model);
+
+		++frameCtr;
+		if (SDL_GetTicks() - ticks > 1000) {
+			std::cout << "FPS: " << frameCtr << "\n";
+			ticks = SDL_GetTicks();
+			frameCtr = 0;
+		}
 	}
 
 	SDL_Quit();

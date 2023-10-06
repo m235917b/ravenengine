@@ -10,6 +10,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <memory>
 
+#include <iostream>
+
 using namespace rpy;
 
 Solid::Solid(float posX, float posY, float posZ)
@@ -126,8 +128,8 @@ std::vector<std::shared_ptr<triangle>> &Solid::getAux() { return aux; }
 
 void Solid::updateVertices() {
   auto mat =
-      objectspaceTrans *
-      glm::rotate(glm::scale(glm::translate(model, pos), scal), angle, rot);
+      glm::rotate(glm::scale(glm::translate(model, pos), scal), angle, rot) *
+      objectspaceTrans;
 
   for (unsigned int i = 0; i < verticesLocal.size(); ++i) {
     vertices.at(i).pos = mat * verticesLocal.at(i).pos;
@@ -135,6 +137,6 @@ void Solid::updateVertices() {
 }
 
 void Solid::move(glm::vec3 dir) {
-	// pos += dir;
-	// setSpherePos(glm::vec4(pos, 1.0f));
+  // pos += dir;
+  // setSpherePos(glm::vec4(pos, 1.0f));
 }
