@@ -29,8 +29,9 @@ Model::Model()
 
   solids.push_back(std::shared_ptr<rpy::Solid>(new Wall(-50.f, 0.f, 50.f)));
 
-  /*solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(10.0f, 0.0f,
-  -20.0f))); solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(-10.1f, 0.0f,
+  // solids.push_back(std::shared_ptr<rpy::Solid>(new CubeTest(10.0f, 0.0f,
+  // -20.0f)));
+  /*solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(-10.1f, 0.0f,
   -20.0f))); solids.push_back( std::shared_ptr<rpy::Solid>(new
   Cube(100.0f, 1.0f, -200.0f)));
   solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(10.0f, 1.0f, -23.5f)));
@@ -41,10 +42,10 @@ Model::Model()
   solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(30.0f, 0.0f, -30.0f)));
   solids.push_back(std::shared_ptr<rpy::Solid>(new Cube(0.0f, 0.0f, -30.0f)));*/
 
-  for (int x = -1; x < 10; ++x) {
-    for (int y = 0; y < 100; ++y) {
+  for (int x = -1; x < 4; ++x) {
+    for (int y = 0; y < 4; ++y) {
       solids.push_back(std::shared_ptr<rpy::Solid>(
-          new Cube(100.0f + y * 4.f, x * 4.f, 0.0f)));
+          new CubeTest(100.0f + y * 2.f, x * 2.f, 0.0f)));
     }
   }
 }

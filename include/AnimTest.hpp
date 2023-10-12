@@ -15,11 +15,12 @@ private:
 	int getLowKeyframe(int frame, int index = 0);
 
 protected:
-	void run();
 
 public:
 	AnimTest(float posX, float posY, float posZ);
 	~AnimTest();
+
+	void run() override;
 };
 
 #endif /* ANIMTEST_H_ */

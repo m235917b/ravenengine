@@ -6,6 +6,7 @@
  */
 
 #include <WorldObject.hpp>
+#include <glm/fwd.hpp>
 #include <loadShader.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -18,7 +19,7 @@ WorldObject::WorldObject(float posX, float posY, float posZ) :
 		glGetUniformLocation(programID, "MVP")), textureID(0), vertexbuffer(0), normalbuffer(
 				0), texbuffer(0), indexbuffer(0), vertexarray(0), vertexCount(
 				0), pos(posX, posY, posZ), rot(0.0f, 1.0f, 0.0f), scal(1.0f), model(
-				1.0f), objectspaceTrans(1.0f), angle(0.0f) {
+				1.0f), objectspaceTrans(1.0f), angle(0.0f), force(0.f) {
 }
 
 WorldObject::~WorldObject() {
@@ -138,8 +139,6 @@ float WorldObject::getAngle() {
 }
 
 void WorldObject::render(glm::mat4 &projection, glm::mat4 &view) {
-	run();
-
 	glm::mat4 mvp = projection * view
 			* glm::rotate(glm::scale(glm::translate(model, pos), scal), angle,
 					rot) * objectspaceTrans;
@@ -158,3 +157,10 @@ void WorldObject::render(glm::mat4 &projection, glm::mat4 &view) {
 	glUseProgram(0);
 }
 
+void WorldObject::clean() {
+	force = glm::vec3(0.f);
+}
+
+bool WorldObject::isMoving() {
+	return force.x != 0.f || force.y != 0.f || force.z != 0.f;
+}

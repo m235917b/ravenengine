@@ -189,12 +189,6 @@ rpy::solidData loadSolid(const std::string filename) {
 				out.normals.insert(out.normals.begin(), normalData.begin(), normalData.end());
 				out.indices.insert(out.indices.begin(), indexData.begin(), indexData.end());
 				out.texData.insert(out.texData.begin(), texData.begin(), texData.end());
-
-				std::cout << "hello\n";
-  				for (auto v : out.vertices) {
-    				std::cout << v << "\n";
-  				}
-  				std::cout << "hello\n";
 			}
 
 			vertexData = std::vector<GLfloat>();

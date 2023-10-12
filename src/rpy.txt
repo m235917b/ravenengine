@@ -42,6 +42,7 @@ void initSolids(std::vector<std::shared_ptr<rpy::Solid>> &objects) {
 inline unsigned int min(unsigned int x, unsigned int y) {
   return (x < y) ? x : y;
 }
+//
 
 template <typename T>
 inline void merge(unsigned int lo, unsigned int mid, unsigned int hi,
@@ -104,7 +105,7 @@ inline void mergesort(ArrayVector2D<T> &a, std::vector<T> &aux,
  */
 inline void sweep(ArrayVector2D<std::shared_ptr<Solid>> &in,
                   ArrayVector2D<std::shared_ptr<Solid>> &out,
-                  std::function<bool(sphere &, sphere &)> f) {
+                  std::function<bool(aabb &, aabb &)> f, Axis a) {
   bool noCollisionBefore;
 
   for (unsigned int k = 0; k < in.numLists(); ++k) {
@@ -112,15 +113,20 @@ inline void sweep(ArrayVector2D<std::shared_ptr<Solid>> &in,
     Only needed, if no empty list should created at the end. */
     noCollisionBefore = true;
     in.getList(k);
-    auto &s1 = in.at(0)->getSphere();
+
+    if (in.size() == 0) {
+      continue;
+    }
+
+    auto b1 = std::make_shared<aabb>(in.at(0)->getBoundingBox());
 
     /* iterate over every previously detected collision group
     (for an otheraxis), or the list of sorted solids */
     for (unsigned int i = 1; i < in.size(); ++i) {
-      auto &s2 = in.at(i)->getSphere();
+      auto b2 = std::make_shared<aabb>(in.at(i)->getBoundingBox());
 
-      // if bounding spheres collide
-      if (f(s1, s2)) {
+      // if bounding boxes collide
+      if (f(*b1, *b2)) {
         // if this is new collision group
         if (noCollisionBefore) {
           noCollisionBefore = false;
@@ -136,11 +142,25 @@ inline void sweep(ArrayVector2D<std::shared_ptr<Solid>> &in,
         noCollisionBefore = true;
       }
 
-      /* only compare next bounding sphere with the sphere that has the highest
-      bound in the direction of search, otherwise a smaller object might not
-      collide with its successor, but with a larger previous object */
-      if (glm::distance(s1.pos, s2.pos) + s2.rad >= s1.rad) {
-        s1 = s2;
+      /* only compare next bounding box with the box that has the
+      highest bound in the direction of search, otherwise a smaller object
+      might not collide with its successor, but with a larger previous object
+      */
+      if (a == x) {
+        if (glm::distance(b1->pos, b2->pos) + b2->diagonal.x >=
+            b1->diagonal.x) {
+          b1 = b2;
+        }
+      } else if (a == y) {
+        if (glm::distance(b1->pos, b2->pos) + b2->diagonal.y >=
+            b1->diagonal.y) {
+          b1 = b2;
+        }
+      } else if (a == z) {
+        if (glm::distance(b1->pos, b2->pos) + b2->diagonal.z >=
+            b1->diagonal.z) {
+          b1 = b2;
+        }
       }
     }
   }
@@ -199,213 +219,7 @@ inline float max(std::shared_ptr<triangle> t, Axis a) {
 }
 
 /**
- * Detects which triangles of the first solid collide with the second solid, by
- * sweeping through a sorted list of the traingles, which makes it possible to
- * detect those collisions in O(n) runtime. The triangles that will be detected,
- * are stored in the ArrayVector2D of the first solid.
- *
- * @param o1 The first solid of which the triangles that collide with the second
- * solid will be detected
- * @param o2 The second solid for which the collisions with the trianles of the
- * first solid should be tested */
-inline void sweepTriangle(std::shared_ptr<Solid> o1,
-                          std::shared_ptr<Solid> o2) {
-  // clear any previously found colliding triangles
-  o1->getSolidSort().clear();
-  unsigned int j = 0;
-
-  // iterate over every triangle t1 of the sorted list of o1
-  for (unsigned int i = 0; i < o1->getSolidSortX().size(); ++i) {
-    /* ignore every triangle t2 from o2 that can not collide with current
-     * triangle t1, because its upper bound is lower that the lower
-     * bound of t1 */
-    while (min(o1->getSolidSortX().at(i), x) >
-           max(o2->getSolidSortX().at(j), x)) {
-      ++j;
-
-      /* if no traingle that is left of o2 collides with the current triangle
-       * t1, stop the seach */
-      if (j >= o2->getSolidSortX().size()) {
-        return;
-      }
-    }
-
-    /* if a triangle of o2 has been found, that could collide with the current
-     * triangle t1 (upper bound is higher than lower bound of t1), test for
-     * collision */
-
-    const auto &t1 = o1->getSolidSortX().at(i);
-    const auto &t2 = o2->getSolidSortX().at(j);
-
-    if (max(t1, x) > min(t2, x))
-      if (min(t1, y) < max(t2, y) && max(t1, y) > min(t2, y))
-        if (min(t1, z) < max(t2, z) && max(t1, z) > min(t2, z)) {
-          auto collision = true;
-
-          // normal vector of triangle plane of t2
-          const auto n_t2 =
-              glm::normalize(t2->a->normal + t2->b->normal + t2->c->normal);
-
-          // calculate on which side of t2 each point of t1 is
-          const auto side_a =
-              glm::dot(n_t2, glm::vec3(t1->a->pos - t2->a->pos));
-          const auto side_b =
-              glm::dot(n_t2, glm::vec3(t1->b->pos - t2->a->pos));
-          const auto side_c =
-              glm::dot(n_t2, glm::vec3(t1->c->pos - t2->a->pos));
-
-          /* if edge a-b of t1 crosses the plane of t2 (side_a and side_b have
-           * opposite signs) */
-          if (side_a <= 0 && side_b >= 0 || side_a >= 0 && side_b <= 0) {
-            collision = true;
-            // edge a-b of t1 as normal vector
-            const auto n = glm::normalize(t1->b->pos - t1->a->pos);
-            // project the vertices of t2 on the subspace (plane) defined by n
-            const auto p_a = t2->a->pos - glm::dot(t2->a->pos, n) * n;
-            const auto p_b = t2->b->pos - glm::dot(t2->b->pos, n) * n;
-            const auto p_c = t2->c->pos - glm::dot(t2->c->pos, n) * n;
-            // project the edge a-b of t1 on the subspace (plane) defined by n
-            const auto p_e_ab = t1->a->pos - glm::dot(t1->a->pos, n) * n;
-
-            /* Check if the projected point p_e_ab lies inside the projected
-             * triangle defined by p_a, p_b and p_c. In this case, the edge a-b
-             * crossed the triangle and t1 and t2 must be colliding. */
-
-            const auto angle1 = glm::dot(p_e_ab - p_a, p_e_ab - p_b);
-            const auto angle2 = glm::dot(p_e_ab - p_a, p_e_ab - p_c);
-            const auto angle3 = glm::dot(p_e_ab - p_b, p_e_ab - p_c);
-
-            /* if all 3 vectors from p_a, p_b and p_c to p_e_ab do not point in
-             * the same direction, p_e_ab lies inside the triangle */
-
-            if (angle1 <= 0 || angle2 <= 0 || angle3 <= 0) {
-              collision = true;
-            }
-          } // repeat the same for the other 2 edges of t1
-          else if (side_b <= 0 && side_c >= 0 || side_b >= 0 && side_c <= 0) {
-            collision = true;
-            // edge a-b of t1 as normal vector
-            const auto n = glm::normalize(t1->c->pos - t1->b->pos);
-            // project the vertices of t2 on the subspace (plane) defined by n
-            const auto p_a = t2->a->pos - glm::dot(t2->a->pos, n) * n;
-            const auto p_b = t2->b->pos - glm::dot(t2->b->pos, n) * n;
-            const auto p_c = t2->c->pos - glm::dot(t2->c->pos, n) * n;
-            // project the edge a-b of t1 on the subspace (plane) defined by n
-            const auto p_e_bc = t1->b->pos - glm::dot(t1->b->pos, n) * n;
-
-            /* Check if the projected point p_e_ab lies inside the projected
-             * triangle defined by p_a, p_b and p_c. In this case, the edge a-b
-             * crossed the triangle and t1 and t2 must be colliding. */
-
-            const auto angle1 = glm::dot(p_e_bc - p_a, p_e_bc - p_b);
-            const auto angle2 = glm::dot(p_e_bc - p_a, p_e_bc - p_c);
-            const auto angle3 = glm::dot(p_e_bc - p_b, p_e_bc - p_c);
-
-            /* if all 3 vectors from p_a, p_b and p_c to p_e_ab do not point in
-             * the same direction, p_e_ab lies inside the triangle */
-
-            if (angle1 <= 0 || angle2 <= 0 || angle3 <= 0) {
-              collision = true;
-            }
-          } else if (side_c <= 0 && side_a >= 0 || side_c >= 0 && side_a <= 0) {
-            collision = true;
-            // edge a-b of t1 as normal vector
-            const auto n = glm::normalize(t1->a->pos - t1->c->pos);
-            // project the vertices of t2 on the subspace (plane) defined by n
-            const auto p_a = t2->a->pos - glm::dot(t2->a->pos, n) * n;
-            const auto p_b = t2->b->pos - glm::dot(t2->b->pos, n) * n;
-            const auto p_c = t2->c->pos - glm::dot(t2->c->pos, n) * n;
-            // project the edge a-b of t1 on the subspace (plane) defined by n
-            const auto p_e_ca = t1->c->pos - glm::dot(t1->c->pos, n) * n;
-
-            /* Check if the projected point p_e_ab lies inside the projected
-             * triangle defined by p_a, p_b and p_c. In this case, the edge a-b
-             * crossed the triangle and t1 and t2 must be colliding. */
-
-            const auto angle1 = glm::dot(p_e_ca - p_a, p_e_ca - p_b);
-            const auto angle2 = glm::dot(p_e_ca - p_a, p_e_ca - p_c);
-            const auto angle3 = glm::dot(p_e_ca - p_b, p_e_ca - p_c);
-
-            /* if all 3 vectors from p_a, p_b and p_c to p_e_ab do not point in
-             * the same direction, p_e_ab lies inside the triangle */
-
-            if (angle1 <= 0 || angle2 <= 0 || angle3 <= 0) {
-              collision = true;
-            }
-          }
-
-          // if collision occured, add t1 to list of colliding triangles
-          if (collision) {
-            o1->getSolidSort().push_back(o1->getSolidSortX().at(i));
-          }
-        }
-
-    /* No matter if the triangles collided or not, whe can safely continue to
-     * the next triangle of o2. This is, because it only matters, which
-     * triangles of o1 are colliding with o2, not with which, or how many
-     * triangles of o2. Thus, if t1 does collide with the first
-     * triangle t2 of o2 with lower_bound >= t1.upper_bund, we already detected
-     * t1 in this iteration and it doesn't matter if it also collides with the
-     * next triangle. Otherwise, if t1 does not collide with the first triangle
-     * of o2 with lower_bound >= t1.upper_bund, no triangle that comes next in
-     * the list could collide with t1, because of the ordering. So only the next
-     * triangle in the list for o1 needs to be checked for collision with t2.*/
-  }
-}
-
-/**
- * This function detects collisions between triangles of two solids. All
- * traingles that are part of the collision can be found in the ArrayVector2D
- * SolidSort of the respective objects (call object.getSolidSort()), so their
- * normals can be used for collision handling after calling this function.
- *
- * @param o1 First solid for collision detection
- * @param o2 Second solid for collision detection
- */
-inline void sortCollisionsTriangle(std::shared_ptr<Solid> o1,
-                                   std::shared_ptr<Solid> o2) {
-  o1->updateVertices();
-  o2->updateVertices();
-
-  // sort all triangles of o1 for their lower bound in any direction
-  mergesort<std::shared_ptr<triangle>>(
-      o1->getSolidSortX(), o1->getAux(),
-      [](std::shared_ptr<triangle> lo, std::shared_ptr<triangle> hi) -> bool {
-        return min(lo, x) <= min(hi, x);
-      });
-  // sort all triangles of o2 for their upper bound in the same direction
-  mergesort<std::shared_ptr<triangle>>(
-      o2->getSolidSortX(), o2->getAux(),
-      [](std::shared_ptr<triangle> lo, std::shared_ptr<triangle> hi) -> bool {
-        return max(lo, x) <= max(hi, x);
-      });
-  /* detect all triangles of o1 that are colliding with o2 and store them in
-  o1.SolidSort */
-  sweepTriangle(o1, o2);
-
-  /* because only the triangles of the first object that collide with the second
-   * can be found in O(n) runtime, the entire process needs to be done again for
-   * the second object*/
-
-  // sort all triangles of o1 for their upper bound in any direction
-  mergesort<std::shared_ptr<triangle>>(
-      o1->getSolidSortX(), o1->getAux(),
-      [](std::shared_ptr<triangle> lo, std::shared_ptr<triangle> hi) -> bool {
-        return max(lo, x) <= max(hi, x);
-      });
-  // sort all triangles of o2 for their lower bound in the same direction
-  mergesort<std::shared_ptr<triangle>>(
-      o2->getSolidSortX(), o2->getAux(),
-      [](std::shared_ptr<triangle> lo, std::shared_ptr<triangle> hi) -> bool {
-        return min(lo, x) <= min(hi, x);
-      });
-  /* detect all triangles of o2 that are colliding with o1 and store them in
-  o2.SolidSort */
-  sweepTriangle(o2, o1);
-}
-
-/**
- * Searches for all separate groups of colliding bounding spheres, to eliminate
+ * Searches for all separate groups of colliding bounding boxes, to eliminate
  * as much objects that have to be tested for collision as possible. The objects
  * in each group have to be tested for collision pair wise after calling this
  * function.
@@ -415,47 +229,262 @@ inline void sortCollisions() {
   solidsortz.clear();
   solidsort.clear();
 
-  /* sort the bounding spheres of all solids for possible collisions in
+  /* sort the bounding boxes of all solids for possible collisions in
    * x-direction by their lower bound */
   mergesort<std::shared_ptr<Solid>>(
       solidsortx, aux,
       [](std::shared_ptr<Solid> &lo, std::shared_ptr<Solid> &hi) -> bool {
-        return lo->getSphere().pos.x - lo->getSphere().rad <=
-               hi->getSphere().pos.x - hi->getSphere().rad;
+        return lo->getBoundingBox().pos.x - lo->getBoundingBox().diagonal.x <=
+               hi->getBoundingBox().pos.x - hi->getBoundingBox().diagonal.x;
       });
-  /* sweep through all bounding spheres to detect all seperate groups of
-   * possibly colliding spheres in x-direction */
-  sweep(solidsortx, solidsortz, [](sphere &s1, sphere &s2) -> bool {
-    return abs(s2.pos.x - s1.pos.x) <= s1.rad + s2.rad;
-  });
+  /* sweep through all bounding boxes to detect all separate groups of
+   * possibly colliding boxes in x-direction */
+  sweep(
+      solidsortx, solidsortz,
+      [](aabb &b1, aabb &b2) -> bool {
+        return abs(b2.pos.x - b1.pos.x) <= b1.diagonal.x + b2.diagonal.x;
+      },
+      x);
 
-  /* sort the bounding spheres of all solids for possible collisions in
+  /* sort the bounding boxes of all solids for possible collisions in
    * z-direction by their lower bound */
   mergesort<std::shared_ptr<Solid>>(
       solidsortz, aux,
       [](std::shared_ptr<Solid> &lo, std::shared_ptr<Solid> &hi) -> bool {
-        return lo->getSphere().pos.z - lo->getSphere().rad <=
-               hi->getSphere().pos.z - hi->getSphere().rad;
+        return lo->getBoundingBox().pos.z - lo->getBoundingBox().diagonal.z <=
+               hi->getBoundingBox().pos.z - hi->getBoundingBox().diagonal.z;
       });
-  /* sweep through all bounding spheres to detect all seperate groups of
-   * possibly colliding spheres in z-direction */
-  sweep(solidsortz, solidsorty, [](sphere &s1, sphere &s2) -> bool {
-    return abs(s2.pos.z - s1.pos.z) <= s1.rad + s2.rad;
-  });
+  /* sweep through all bounding boxes to detect all separate groups of
+   * possibly colliding boxes in z-direction */
+  sweep(
+      solidsortz, solidsorty,
+      [](aabb &b1, aabb &b2) -> bool {
+        return abs(b2.pos.z - b1.pos.z) <= b1.diagonal.z + b2.diagonal.z;
+      },
+      z);
 
-  /* sort the bounding spheres of all solids for possible collisions in
+  /* sort the bounding boxes of all solids for possible collisions in
    * y-direction by their lower bound */
   mergesort<std::shared_ptr<Solid>>(
       solidsorty, aux,
       [](std::shared_ptr<Solid> &lo, std::shared_ptr<Solid> &hi) -> bool {
-        return lo->getSphere().pos.y - lo->getSphere().rad <=
-               hi->getSphere().pos.y - hi->getSphere().rad;
+        return lo->getBoundingBox().pos.y - lo->getBoundingBox().diagonal.y <=
+               hi->getBoundingBox().pos.y - hi->getBoundingBox().diagonal.y;
       });
-  /* sweep through all bounding spheres to detect all seperate groups of
-   * possibly colliding spheres in y-direction */
-  sweep(solidsorty, solidsort, [](sphere &s1, sphere &s2) -> bool {
-    return abs(s2.pos.y - s1.pos.y) <= s1.rad + s2.rad;
-  });
+  /* sweep through all bounding boxes to detect all separate groups of
+   * possibly colliding boxes in y-direction */
+  sweep(
+      solidsorty, solidsort,
+      [](aabb &b1, aabb &b2) -> bool {
+        return abs(b2.pos.y - b1.pos.y) <= b1.diagonal.y + b2.diagonal.y;
+      },
+      y);
+}
+
+inline void reduceCollisionsTriangle(float lo_x, float hi_x, float lo_y,
+                                     float hi_y, float lo_z, float hi_z,
+                                     std::shared_ptr<Solid> o) {
+  o->updateVertices();
+
+  o->getSolidSortB().clear();
+
+  for (unsigned int i = 0; i < o->getSolidSortA().size(); ++i) {
+    const auto &t = o->getSolidSortA().at(i);
+    const auto t_min = min(t, x);
+    const auto t_max = max(t, x);
+
+    if ((lo_x > t_min && lo_x < t_max) || (t_min > lo_x && t_min < hi_x)) {
+      o->getSolidSortB().push_back(t);
+    }
+  }
+
+  o->getSolidSortC().clear();
+
+  for (unsigned int i = 0; i < o->getSolidSortB().size(); ++i) {
+    const auto &t = o->getSolidSortB().at(i);
+    const auto t_min = min(t, y);
+    const auto t_max = max(t, y);
+
+    if ((lo_y > t_min && lo_y < t_max) || (t_min > lo_y && t_min < hi_y)) {
+      o->getSolidSortC().push_back(t);
+    }
+  }
+
+  o->getSolidSortB().clear();
+
+  for (unsigned int i = 0; i < o->getSolidSortC().size(); ++i) {
+    const auto &t = o->getSolidSortC().at(i);
+    const auto t_min = min(t, z);
+    const auto t_max = max(t, z);
+
+    if ((lo_z > t_min && lo_z < t_max) || (t_min > lo_z && t_min < hi_z)) {
+      o->getSolidSortB().push_back(t);
+    }
+  }
+}
+
+inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
+                                  std::shared_ptr<Solid> o2) {
+  o1->getSolidSortC().clear();
+  o2->getSolidSortC().clear();
+
+  auto n_o1 = glm::vec3(0.0);
+  auto n_o2 = glm::vec3(0.0);
+
+  for (int i = 0; i < o1->getSolidSortB().size(); ++i) {
+    // auto collision = false;
+    for (int j = 0; j < o2->getSolidSortB().size(); ++j) {
+      const auto t1 = o1->getSolidSortB().at(i);
+      const auto t2 = o2->getSolidSortB().at(j);
+
+      if (max(t1, x) > min(t2, x))
+        if (min(t1, y) < max(t2, y) && max(t1, y) > min(t2, y))
+          if (min(t1, z) < max(t2, z) && max(t1, z) > min(t2, z)) {
+            auto collision = false;
+
+            // normal vector of triangle plane of t2
+            const auto n_t2 = // t2->n;
+                glm::normalize(glm::cross(glm::vec3(t2->b->pos - t2->a->pos),
+                                          glm::vec3(t2->c->pos - t2->a->pos)));
+
+            // calculate on which side of t2 each point of t1 is
+            const auto side_a =
+                glm::dot(n_t2, glm::vec3(t2->a->pos - t1->a->pos));
+            const auto side_b =
+                glm::dot(n_t2, glm::vec3(t2->a->pos - t1->b->pos));
+            const auto side_c =
+                glm::dot(n_t2, glm::vec3(t2->a->pos - t1->c->pos));
+
+            /* if edge a-b of t1 crosses the plane of t2 (side_a and side_b have
+             * opposite signs) */
+            if (side_a <= 0 && side_b >= 0 || side_a >= 0 && side_b <= 0) {
+              // edge a-b of t1 as normal vector
+              const auto n = glm::normalize(t1->b->pos - t1->a->pos);
+              // project the vertices of t2 on the subspace (plane) defined by n
+              const auto p_a =
+                  glm::vec3(t2->a->pos - glm::dot(t2->a->pos, n) * n);
+              const auto p_b =
+                  glm::vec3(t2->b->pos - glm::dot(t2->b->pos, n) * n);
+              const auto p_c =
+                  glm::vec3(t2->c->pos - glm::dot(t2->c->pos, n) * n);
+              // project the edge a-b of t1 on the subspace (plane) defined by n
+              const auto p_e_ab =
+                  glm::vec3(t1->a->pos - glm::dot(t1->a->pos, n) * n);
+
+              /* Check if the projected point p_e_ab lies inside the projected
+               * triangle defined by p_a, p_b and p_c. In this case, the edge
+               * a-b crossed the triangle and t1 and t2 must be colliding. */
+
+              const auto n1 = glm::cross(p_b - p_e_ab, p_c - p_e_ab);
+              const auto n2 = glm::cross(p_c - p_e_ab, p_a - p_e_ab);
+              const auto n3 = glm::cross(p_a - p_e_ab, p_b - p_e_ab);
+
+              const auto angle1 = glm::dot(n1, n2);
+              const auto angle2 = glm::dot(n1, n3);
+
+              if (angle1 > 0 && angle2 > 0) {
+                // exit(0);
+                collision = true;
+              }
+            } // repeat the same for the other 2 edges of t1
+            else if (side_b <= 0 && side_c >= 0 || side_b >= 0 && side_c <= 0) {
+              // edge a-b of t1 as normal vector
+              const auto n = glm::normalize(t1->c->pos - t1->b->pos);
+              // project the vertices of t2 on the subspace (plane) defined by n
+              const auto p_a =
+                  glm::vec3(t2->a->pos - glm::dot(t2->a->pos, n) * n);
+              const auto p_b =
+                  glm::vec3(t2->b->pos - glm::dot(t2->b->pos, n) * n);
+              const auto p_c =
+                  glm::vec3(t2->c->pos - glm::dot(t2->c->pos, n) * n);
+              // project the edge a-b of t1 on the subspace (plane) defined by n
+              const auto p_e_bc =
+                  glm::vec3(t1->b->pos - glm::dot(t1->b->pos, n) * n);
+
+              /* Check if the projected point p_e_ab lies inside the projected
+               * triangle defined by p_a, p_b and p_c. In this case, the edge
+               * a-b crossed the triangle and t1 and t2 must be colliding. */
+
+              const auto n1 = glm::cross(p_b - p_e_bc, p_c - p_e_bc);
+              const auto n2 = glm::cross(p_c - p_e_bc, p_a - p_e_bc);
+              const auto n3 = glm::cross(p_a - p_e_bc, p_b - p_e_bc);
+
+              const auto angle1 = glm::dot(n1, n2);
+              const auto angle2 = glm::dot(n1, n3);
+
+              if (angle1 > 0 && angle2 > 0) {
+                collision = true;
+              }
+            } else if (side_c <= 0 && side_a >= 0 ||
+                       side_c >= 0 && side_a <= 0) {
+              // edge a-b of t1 as normal vector
+              const auto n = glm::normalize(t1->a->pos - t1->c->pos);
+              // project the vertices of t2 on the subspace (plane) defined by n
+              const auto p_a =
+                  glm::vec3(t2->a->pos - glm::dot(t2->a->pos, n) * n);
+              const auto p_b =
+                  glm::vec3(t2->b->pos - glm::dot(t2->b->pos, n) * n);
+              const auto p_c =
+                  glm::vec3(t2->c->pos - glm::dot(t2->c->pos, n) * n);
+              // project the edge a-b of t1 on the subspace (plane) defined by n
+              const auto p_e_ca =
+                  glm::vec3(t1->c->pos - glm::dot(t1->c->pos, n) * n);
+
+              /* Check if the projected point p_e_ab lies inside the projected
+               * triangle defined by p_a, p_b and p_c. In this case, the edge
+               * a-b crossed the triangle and t1 and t2 must be colliding. */
+
+              const auto n1 = glm::cross(p_b - p_e_ca, p_c - p_e_ca);
+              const auto n2 = glm::cross(p_c - p_e_ca, p_a - p_e_ca);
+              const auto n3 = glm::cross(p_a - p_e_ca, p_b - p_e_ca);
+
+              const auto angle1 = glm::dot(n1, n2);
+              const auto angle2 = glm::dot(n1, n3);
+
+              if (angle1 > 0 && angle2 > 0) {
+                collision = true;
+              }
+            }
+
+            if (collision) {
+              const auto n_t1 = // t1->n;
+                  glm::normalize(
+                      glm::cross(glm::vec3(t1->b->pos - t1->a->pos),
+                                 glm::vec3(t1->c->pos - t1->a->pos)));
+
+              auto v_aa = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->a->pos));
+              auto v_ba = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->b->pos));
+              auto v_ca = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->c->pos));
+              auto max_t1 = (v_aa > v_ba && v_aa > v_ca)
+                                ? v_aa
+                                : (v_ba > v_ca ? v_ba : v_ca);
+              // auto max_n1 = n_t1 * max_t1;
+
+              // n_o1 = glm::length(max_n1) > glm::length(n_o1) ? max_n1 : n_o1;
+
+              n_o1 = glm::normalize(n_o1 + n_t1);
+
+              auto max_t2 = (side_a > side_b && side_a > side_c)
+                                ? side_a
+                                : (side_b > side_c ? side_b : side_c);
+              auto max_n2 = n_t2 * max_t2;
+
+              // n_o2 = glm::length(max_n2) > glm::length(n_o2) ? max_n2 : n_o2;
+
+              n_o2 = glm::normalize(n_o2 + n_t2);
+            }
+          }
+    }
+
+    // if collision occured, add t1 to list of colliding triangles
+    /*if (collision) {
+      o1->getSolidSortC().push_back(o1->getSolidSortB().at(i));
+      // o2->getSolidSortC().push_back(o2->getSolidSortB().at(j));
+    }*/
+  }
+
+  o1->move(n_o2 * 0.6f);
+  o2->move(n_o1 * 0.6f);
 }
 
 void handleCollisions() {
@@ -467,17 +496,57 @@ void handleCollisions() {
     for (unsigned int k = 0; k < size; ++k) {
       for (auto i = k + 1; i < solidsort.size(); ++i) {
         // get collision boxes
-        auto s1 = solidsort.at(k)->getSphere();
-        auto s2 = solidsort.at(i)->getSphere();
+        auto b1 = solidsort.at(k)->getBoundingBox();
+        auto b2 = solidsort.at(i)->getBoundingBox();
         // when collision boxes collide
-        if (glm::distance(s1.pos, s2.pos) < s1.rad + s2.rad) {
-          sortCollisionsTriangle(solidsort.at(k), solidsort.at(i));
+        /*if ((b1.pos.x + b1.diagonal.x > b2.pos.x - b2.diagonal.x) &&
+                (b1.pos.x + b1.diagonal.x < b2.pos.x + b2.diagonal.x) ||
+            (b2.pos.x + b2.diagonal.x > b1.pos.x - b1.diagonal.x) &&
+                (b2.pos.x + b2.diagonal.x < b1.pos.x + b1.diagonal.x)) {
+          if ((b1.pos.z + b1.diagonal.z > b2.pos.z - b2.diagonal.z) &&
+                  (b1.pos.z + b1.diagonal.z < b2.pos.z + b2.diagonal.z) ||
+              (b2.pos.z + b2.diagonal.z > b1.pos.z - b1.diagonal.z) &&
+                  (b2.pos.z + b2.diagonal.z < b1.pos.z + b1.diagonal.z)) {
+            if ((b1.pos.y + b1.diagonal.y > b2.pos.y - b2.diagonal.y) &&
+                    (b1.pos.y + b1.diagonal.y < b2.pos.y + b2.diagonal.y) ||
+                (b2.pos.y + b2.diagonal.y > b1.pos.y - b1.diagonal.y) &&
+                    (b2.pos.y + b2.diagonal.y < b1.pos.x + b1.diagonal.y)) {*/
+              // sortCollisionsTriangle(solidsort.at(k), solidsort.at(i));
+              const auto lo_x =
+                  b1.pos.x - b1.diagonal.x <= b2.pos.x - b2.diagonal.x
+                      ? b2.pos.x - b2.diagonal.x
+                      : b1.pos.x - b1.diagonal.x;
+              const auto hi_x =
+                  b1.pos.x + b1.diagonal.x >= b2.pos.x + b2.diagonal.x
+                      ? b2.pos.x + b2.diagonal.x
+                      : b1.pos.x + b1.diagonal.x;
+              const auto lo_y =
+                  b1.pos.y - b1.diagonal.y <= b2.pos.y - b2.diagonal.y
+                      ? b2.pos.y - b2.diagonal.y
+                      : b1.pos.y - b1.diagonal.y;
+              const auto hi_y =
+                  b1.pos.y + b1.diagonal.y >= b2.pos.y + b2.diagonal.y
+                      ? b2.pos.y + b2.diagonal.y
+                      : b1.pos.y + b1.diagonal.y;
+              const auto lo_z =
+                  b1.pos.z - b1.diagonal.z <= b2.pos.z - b2.diagonal.z
+                      ? b2.pos.z - b2.diagonal.z
+                      : b1.pos.z - b1.diagonal.z;
+              const auto hi_z =
+                  b1.pos.z + b1.diagonal.z >= b2.pos.z + b2.diagonal.z
+                      ? b2.pos.z + b2.diagonal.z
+                      : b1.pos.z + b1.diagonal.z;
 
-          if (!solidsort.at(i)->getSolidSort().isEmpty()) {
-            exit(0);
-          }
+              reduceCollisionsTriangle(lo_x, hi_x, lo_y, hi_y, lo_z, hi_z,
+                                       solidsort.at(k));
+              reduceCollisionsTriangle(lo_x, hi_x, lo_y, hi_y, lo_z, hi_z,
+                                       solidsort.at(i));
+
+              getCollisionsTriangle(solidsort.at(i), solidsort.at(k));
+            }
+          /*}
         }
-      }
+      }*/
     }
   }
 }

@@ -9,114 +9,121 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
-#include <rpy.hpp>
 #include <iostream>
+#include <rpy.hpp>
 
-Controler::Controler() :
-		view(), model(), player(model.getPlayer()) {
-	SDL_SetRelativeMouseMode(SDL_TRUE);
-	rpy::initSolids(model.getSolids());
+Controler::Controler() : view(), model(), player(model.getPlayer()) {
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+  rpy::initSolids(model.getSolids());
 }
 
-Controler::~Controler() {
-
-}
+Controler::~Controler() {}
 
 void Controler::run() {
-	bool quit = false;
-	//Event handler
-	SDL_Event e;
+  bool quit = false;
+  // Event handler
+  SDL_Event e;
 
-	Uint32 ticks = SDL_GetTicks();
-	unsigned int frameCtr = 0;
+  Uint32 ticks = SDL_GetTicks();
+  unsigned int frameCtr = 0;
 
-	while (!quit) {
-		//Handle events on queue
-		while (SDL_PollEvent(&e) != 0) {
-			switch (e.type) {
-			case SDL_QUIT:
-				quit = true;
-				break;
+  while (!quit) {
+    // Handle events on queue
+    while (SDL_PollEvent(&e) != 0) {
+      switch (e.type) {
+      case SDL_QUIT:
+        quit = true;
+        break;
 
-			case SDL_KEYDOWN:
-				switch (e.key.keysym.sym) {
-				case SDLK_ESCAPE:
-					quit = true;
-					break;
+      case SDL_KEYDOWN:
+        switch (e.key.keysym.sym) {
+        case SDLK_ESCAPE:
+          quit = true;
+          break;
 
-				case SDLK_w:
-					keyW = true;
-					break;
+        case SDLK_w:
+          keyW = true;
+          break;
 
-				case SDLK_a:
-					keyA = true;
-					break;
+        case SDLK_a:
+          keyA = true;
+          break;
 
-				case SDLK_s:
-					keyS = true;
-					break;
+        case SDLK_s:
+          keyS = true;
+          break;
 
-				case SDLK_d:
-					keyD = true;
-					break;
-				}
-				break;
+        case SDLK_d:
+          keyD = true;
+          break;
+        }
+        break;
 
-			case SDL_KEYUP:
-				switch (e.key.keysym.sym) {
-				case SDLK_ESCAPE:
-					quit = false;
-					break;
+      case SDL_KEYUP:
+        switch (e.key.keysym.sym) {
+        case SDLK_ESCAPE:
+          quit = false;
+          break;
 
-				case SDLK_w:
-					keyW = false;
-					break;
+        case SDLK_w:
+          keyW = false;
+          break;
 
-				case SDLK_a:
-					keyA = false;
-					break;
+        case SDLK_a:
+          keyA = false;
+          break;
 
-				case SDLK_s:
-					keyS = false;
-					break;
+        case SDLK_s:
+          keyS = false;
+          break;
 
-				case SDLK_d:
-					keyD = false;
-					break;
-				}
-				break;
+        case SDLK_d:
+          keyD = false;
+          break;
+        }
+        break;
 
-			case SDL_MOUSEMOTION:
-				player->rotateX(-e.motion.xrel * 0.001f);
-				player->rotateY(-e.motion.yrel * 0.001f);
-				break;
-			}
-		}
+      case SDL_MOUSEMOTION:
+        player->rotateX(-e.motion.xrel * 0.001f);
+        player->rotateY(-e.motion.yrel * 0.001f);
+        break;
+      }
+    }
 
-		if (keyW) {
-			player->moveForeward(0.5f);
-		}
-		if (keyS) {
-			player->moveForeward(-0.5f);
-		}
-		if (keyD) {
-			player->moveLeft(0.5f);
-		}
-		if (keyA) {
-			player->moveLeft(-0.5f);
-		}
+    if (keyW) {
+      player->moveForeward(0.5f);
+    }
+    if (keyS) {
+      player->moveForeward(-0.5f);
+    }
+    if (keyD) {
+      player->moveLeft(0.5f);
+    }
+    if (keyA) {
+      player->moveLeft(-0.5f);
+    }
 
-		rpy::handleCollisions();
+	std::for_each(model.firstObject(), model.lastObject(),
+                  [this](auto &o) { o->run(); });
+    std::for_each(model.firstSolid(), model.lastSolid(),
+                  [this](auto &o) { o->run(); });
 
-		view.render(model);
+    rpy::handleCollisions();
 
-		++frameCtr;
-		if (SDL_GetTicks() - ticks > 1000) {
-			std::cout << "FPS: " << frameCtr << "\n";
-			ticks = SDL_GetTicks();
-			frameCtr = 0;
-		}
-	}
+	std::for_each(model.firstObject(), model.lastObject(),
+                  [this](auto &o) { o->clean(); });
+    std::for_each(model.firstSolid(), model.lastSolid(),
+                  [this](auto &o) { o->clean(); });
 
-	SDL_Quit();
+    view.render(model);
+
+    ++frameCtr;
+    if (SDL_GetTicks() - ticks > 1000) {
+      std::cout << "FPS: " << frameCtr << "\n";
+      ticks = SDL_GetTicks();
+      frameCtr = 0;
+    }
+  }
+
+  SDL_Quit();
 }

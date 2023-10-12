@@ -18,12 +18,11 @@ protected:
 	std::vector<GLfloat> getTexData();
 	std::vector<GLuint> getIndexData();
 
-	void run() override;
-
 public:
 	Wall(float posX, float posY, float posZ);
 
 	void move(glm::vec3 dir) override;
+	void run() override;
 };
 
 #endif

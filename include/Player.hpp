@@ -37,6 +37,7 @@ public:
 	void moveLeft(float amount);
 	void rotateY(float angle);
 	void rotateX(float angle);
+	void run() override;
 };
 
 #endif /* INCLUDE_PLAYER_HPP_ */

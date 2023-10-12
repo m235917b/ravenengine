@@ -25,11 +25,13 @@ typedef struct solidDataStruct {
 } solidData;
 
 typedef struct vertex_struct {
+  glm::vec4 pos_loc;
   glm::vec4 pos;
   glm::vec3 normal;
 } vertex;
 
 typedef struct triangle_struct {
+  unsigned int index;
   vertex *a;
   vertex *b;
   vertex *c;
@@ -41,6 +43,11 @@ typedef struct sphere_struct {
   glm::vec4 pos;
 } sphere;
 
+typedef struct aabb_struct {
+  glm::vec4 diagonal;
+  glm::vec4 pos;
+} aabb;
+
 class Solid : public WorldObject {
 private:
   std::vector<vertex> vertices;
@@ -51,8 +58,11 @@ private:
   ArrayVector2D<std::shared_ptr<triangle>> solidsortc;
   std::vector<std::shared_ptr<triangle>> aux;
   sphere bs;
+  aabb bounding_box;
 
   inline void setSphere();
+
+  inline void setBoundingBox();
 
 public:
   Solid(float posX, float posY, float posZ);
@@ -70,6 +80,14 @@ public:
 
   void setSpherePos(glm::vec4 v);
 
+  aabb &getBoundingBox();
+
+  void transformBoundingBox(glm::mat4 m);
+
+  void moveBoundingBox(glm::vec4 v);
+
+  void setBoundingBoxPos(glm::vec4 v);
+
   std::vector<triangle> &getPolygon();
 
   ArrayVector2D<std::shared_ptr<triangle>> &getSolidSortA();
@@ -82,7 +100,15 @@ public:
 
   void updateVertices();
 
+  void updateTriangle(std::shared_ptr<triangle> t);
+
   virtual void move(glm::vec3 dir);
+
+  void bounce(glm::vec3 dir);
+
+  void bounce2(glm::vec3 v);
+
+  std::vector<vertex> &getVertices();
 };
 
 } // namespace rpy

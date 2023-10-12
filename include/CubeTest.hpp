@@ -11,7 +11,7 @@
 #include <GL/glew.h>
 #include <Solid.hpp>
 
-class Cube: public rpy::Solid {
+class CubeTest: public rpy::Solid {
 private:
 
 protected:
@@ -20,12 +20,11 @@ protected:
 	std::vector<GLfloat> getTexData();
 	std::vector<GLuint> getIndexData();
 
-	void run() override;
-
 public:
-	Cube(float posX, float posY, float posZ);
+	CubeTest(float posX, float posY, float posZ);
 
 	void move(glm::vec3 dir) override;
+	void run() override;
 };
 
 #endif

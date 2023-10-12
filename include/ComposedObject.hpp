@@ -29,13 +29,12 @@ protected:
 	glm::mat4 armature_world;
 	std::vector<Animation> animations;
 
-	virtual void run();
-
 public:
 	ComposedObject();
 	ComposedObject(float posX, float posY, float posZ);
 	virtual ~ComposedObject();
-	void render(glm::mat4 &projection, glm::mat4 &view);
+	void render(glm::mat4 &projection, glm::mat4 &view) override;
+	virtual void run() override;
 };
 
 #endif /* COMPOSEDOBJECT_H_ */

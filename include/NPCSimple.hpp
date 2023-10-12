@@ -14,10 +14,11 @@ class NPCSimple: public ComposedObject {
 private:
 
 protected:
-	void run();
 
 public:
 	NPCSimple(float posX, float posY, float posZ);
+
+	void run() override;
 };
 
 #endif /* NPCSIMPLE_H_ */

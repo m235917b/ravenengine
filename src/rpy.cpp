@@ -7,8 +7,10 @@
 
 #include <ArrayVector2D.hpp>
 #include <Solid.hpp>
+#include <algorithm>
 #include <functional>
 #include <glm/common.hpp>
+#include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <memory>
@@ -24,6 +26,7 @@ static ArrayVector2D<std::shared_ptr<rpy::Solid>> solidsortz;
 static ArrayVector2D<std::shared_ptr<rpy::Solid>> solidsort;
 static std::vector<std::shared_ptr<rpy::Solid>> aux;
 static unsigned int sort_ctr;
+static std::vector<glm::vec3> axes;
 
 namespace rpy {
 
@@ -37,12 +40,77 @@ void initSolids(std::vector<std::shared_ptr<rpy::Solid>> &objects) {
   for (std::shared_ptr<rpy::Solid> s : objects) {
     solidsortx.push_back(s);
   }
+
+  axes = std::vector<glm::vec3>();
+
+  for (auto x = -1.f; x <= 1.f; x += .5f) {
+    for (auto y = -1.f; y <= 1.f; y += .5f) {
+      for (auto z = -1.f; z <= 1.f; z += .5f) {
+        if (x != 0.f || y != 0.f || z != 0.f) {
+          axes.push_back(glm::normalize(glm::vec3(x, y, z)));
+        }
+      }
+    }
+  }
 }
 
 inline unsigned int min(unsigned int x, unsigned int y) {
   return (x < y) ? x : y;
 }
-//
+
+// ---------- helper functions ----------
+
+inline float min(std::shared_ptr<triangle> t, Axis a) {
+  float p1;
+  float p2;
+  float p3;
+
+  switch (a) {
+  case x:
+    p1 = t->a->pos.x;
+    p2 = t->b->pos.x;
+    p3 = t->c->pos.x;
+    break;
+  case y:
+    p1 = t->a->pos.y;
+    p2 = t->b->pos.y;
+    p3 = t->c->pos.y;
+    break;
+  case z:
+    p1 = t->a->pos.z;
+    p2 = t->b->pos.z;
+    p3 = t->c->pos.z;
+    break;
+  }
+
+  return p1 <= p2 && p1 <= p3 ? p1 : p2 <= p3 ? p2 : p3;
+}
+
+inline float max(std::shared_ptr<triangle> t, Axis a) {
+  float p1;
+  float p2;
+  float p3;
+
+  switch (a) {
+  case x:
+    p1 = t->a->pos.x;
+    p2 = t->b->pos.x;
+    p3 = t->c->pos.x;
+    break;
+  case y:
+    p1 = t->a->pos.y;
+    p2 = t->b->pos.y;
+    p3 = t->c->pos.y;
+    break;
+  case z:
+    p1 = t->a->pos.z;
+    p2 = t->b->pos.z;
+    p3 = t->c->pos.z;
+    break;
+  }
+
+  return p1 >= p2 && p1 >= p3 ? p1 : p2 >= p3 ? p2 : p3;
+}
 
 template <typename T>
 inline void merge(unsigned int lo, unsigned int mid, unsigned int hi,
@@ -90,6 +158,8 @@ inline void mergesort(ArrayVector2D<T> &a, std::vector<T> &aux,
     }
   }
 }
+
+// ---------- object collision detection ----------
 
 /**
  * This function takes a list of solids, that is sorted for the lower bound in a
@@ -153,58 +223,6 @@ inline void sweep(ArrayVector2D<std::shared_ptr<Solid>> &in,
   }
 }
 
-inline float min(std::shared_ptr<triangle> t, Axis a) {
-  float p1;
-  float p2;
-  float p3;
-
-  switch (a) {
-  case x:
-    p1 = t->a->pos.x;
-    p2 = t->b->pos.x;
-    p3 = t->c->pos.x;
-    break;
-  case y:
-    p1 = t->a->pos.y;
-    p2 = t->b->pos.y;
-    p3 = t->c->pos.y;
-    break;
-  case z:
-    p1 = t->a->pos.z;
-    p2 = t->b->pos.z;
-    p3 = t->c->pos.z;
-    break;
-  }
-
-  return p1 <= p2 && p1 <= p3 ? p1 : p2 <= p3 ? p2 : p3;
-}
-
-inline float max(std::shared_ptr<triangle> t, Axis a) {
-  float p1;
-  float p2;
-  float p3;
-
-  switch (a) {
-  case x:
-    p1 = t->a->pos.x;
-    p2 = t->b->pos.x;
-    p3 = t->c->pos.x;
-    break;
-  case y:
-    p1 = t->a->pos.y;
-    p2 = t->b->pos.y;
-    p3 = t->c->pos.y;
-    break;
-  case z:
-    p1 = t->a->pos.z;
-    p2 = t->b->pos.z;
-    p3 = t->c->pos.z;
-    break;
-  }
-
-  return p1 >= p2 && p1 >= p3 ? p1 : p2 >= p3 ? p2 : p3;
-}
-
 /**
  * Searches for all separate groups of colliding bounding spheres, to eliminate
  * as much objects that have to be tested for collision as possible. The objects
@@ -259,6 +277,96 @@ inline void sortCollisions() {
   });
 }
 
+// ---------- convex hull collision detection ----------
+
+inline float testCollisionAxis(std::shared_ptr<Solid> o1,
+                               std::shared_ptr<Solid> o2, glm::vec3 axis) {
+  auto min_o1 = 0.f;
+  auto max_o1 = 0.f;
+  auto min_o2 = 0.f;
+  auto max_o2 = 0.f;
+
+  o1->updateVertices();
+  o2->updateVertices();
+
+  auto &vertices_o1 = o1->getVertices();
+  auto &vertices_o2 = o2->getVertices();
+
+  for (unsigned int i = 0; i < vertices_o1.size(); ++i) {
+    auto value = glm::dot(axis, glm::vec3(vertices_o1.at(i).pos));
+
+    if (i == 0 || min_o1 > value) {
+      min_o1 = value;
+    }
+
+    if (i == 0 || max_o1 < value) {
+      max_o1 = value;
+    }
+  }
+
+  for (unsigned int i = 0; i < vertices_o2.size(); ++i) {
+    auto value = glm::dot(axis, glm::vec3(vertices_o2.at(i).pos));
+
+    if (i == 0 || min_o2 > value) {
+      min_o2 = value;
+    }
+
+    if (i == 0 || max_o2 < value) {
+      max_o2 = value;
+    }
+  }
+
+  if (max_o1 > min_o2 && max_o2 > min_o1) {
+    auto dist_1 = max_o2 - min_o1;
+    auto dist_2 = max_o1 - min_o2;
+    return dist_1 <= dist_2 ? dist_1 : -dist_2;
+  }
+
+  return 0.f;
+}
+
+inline float testCollisionAxis2(std::vector<vertex> &o1,
+                                std::vector<vertex> &o2, glm::vec3 axis) {
+  auto min_o1 = 0.f;
+  auto max_o1 = 0.f;
+  auto min_o2 = 0.f;
+  auto max_o2 = 0.f;
+
+  for (unsigned int i = 0; i < o1.size(); ++i) {
+    auto value = glm::dot(axis, glm::vec3(o1.at(i).pos));
+
+    if (i == 0 || min_o1 > value) {
+      min_o1 = value;
+    }
+
+    if (i == 0 || max_o1 < value) {
+      max_o1 = value;
+    }
+  }
+
+  for (unsigned int i = 0; i < o2.size(); ++i) {
+    auto value = glm::dot(axis, glm::vec3(o2.at(i).pos));
+
+    if (i == 0 || min_o2 > value) {
+      min_o2 = value;
+    }
+
+    if (i == 0 || max_o2 < value) {
+      max_o2 = value;
+    }
+  }
+
+  if (max_o1 > min_o2 && max_o2 > min_o1) {
+    auto dist_1 = max_o2 - min_o1;
+    auto dist_2 = max_o1 - min_o2;
+    return dist_1 <= dist_2 ? dist_1 : -dist_2;
+  }
+
+  return 0.f;
+}
+
+// ---------- triangle collision detection ----------
+
 inline void reduceCollisionsTriangle(float lo_x, float hi_x, float lo_y,
                                      float hi_y, float lo_z, float hi_z,
                                      std::shared_ptr<Solid> o) {
@@ -308,17 +416,25 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
 
   auto n_o1 = glm::vec3(0.0);
   auto n_o2 = glm::vec3(0.0);
+  auto max_n_o1 = glm::vec3(0.0);
+  auto max_n_o2 = glm::vec3(0.0);
 
-  for (int i = 0; i < o1->getSolidSortB().size(); ++i) {
-    // auto collision = false;
-    for (int j = 0; j < o2->getSolidSortB().size(); ++j) {
+  auto collision = false;
+
+  for (unsigned int i = 0; i < o1->getSolidSortB().size(); ++i) {
+    for (unsigned int j = 0; j < o2->getSolidSortB().size(); ++j) {
       const auto t1 = o1->getSolidSortB().at(i);
       const auto t2 = o2->getSolidSortB().at(j);
+
+      /*if (collision) {
+        o1->updateTriangle(t1);
+        o2->updateTriangle(t2);
+      }*/
 
       if (max(t1, x) > min(t2, x))
         if (min(t1, y) < max(t2, y) && max(t1, y) > min(t2, y))
           if (min(t1, z) < max(t2, z) && max(t1, z) > min(t2, z)) {
-            auto collision = false;
+            // collision = false;
 
             // normal vector of triangle plane of t2
             const auto n_t2 = // t2->n;
@@ -335,7 +451,7 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
 
             /* if edge a-b of t1 crosses the plane of t2 (side_a and side_b have
              * opposite signs) */
-            if (side_a <= 0 && side_b >= 0 || side_a >= 0 && side_b <= 0) {
+            if ((side_a <= 0 && side_b >= 0) || (side_a >= 0 && side_b <= 0)) {
               // edge a-b of t1 as normal vector
               const auto n = glm::normalize(t1->b->pos - t1->a->pos);
               // project the vertices of t2 on the subspace (plane) defined by n
@@ -365,7 +481,8 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
                 collision = true;
               }
             } // repeat the same for the other 2 edges of t1
-            else if (side_b <= 0 && side_c >= 0 || side_b >= 0 && side_c <= 0) {
+            else if ((side_b <= 0 && side_c >= 0) ||
+                     (side_b >= 0 && side_c <= 0)) {
               // edge a-b of t1 as normal vector
               const auto n = glm::normalize(t1->c->pos - t1->b->pos);
               // project the vertices of t2 on the subspace (plane) defined by n
@@ -393,8 +510,8 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
               if (angle1 > 0 && angle2 > 0) {
                 collision = true;
               }
-            } else if (side_c <= 0 && side_a >= 0 ||
-                       side_c >= 0 && side_a <= 0) {
+            } else if ((side_c <= 0 && side_a >= 0) ||
+                       (side_c >= 0 && side_a <= 0)) {
               // edge a-b of t1 as normal vector
               const auto n = glm::normalize(t1->a->pos - t1->c->pos);
               // project the vertices of t2 on the subspace (plane) defined by n
@@ -430,27 +547,32 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
                       glm::cross(glm::vec3(t1->b->pos - t1->a->pos),
                                  glm::vec3(t1->c->pos - t1->a->pos)));
 
-              auto v_aa = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->a->pos));
+              /*auto v_aa = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->a->pos));
               auto v_ba = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->b->pos));
               auto v_ca = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->c->pos));
               auto max_t1 = (v_aa > v_ba && v_aa > v_ca)
                                 ? v_aa
                                 : (v_ba > v_ca ? v_ba : v_ca);
-              // auto max_n1 = n_t1 * max_t1;
+              auto max_n1 = n_t1 * max_t1;
 
-              // n_o1 = glm::length(max_n1) > glm::length(n_o1) ? max_n1 : n_o1;
-              
+              max_n_o1 = glm::length(max_n_o1) < max_t1 ? max_n1 : max_n_o1;*/
+
               n_o1 = glm::normalize(n_o1 + n_t1);
 
-
-              auto max_t2 = (side_a > side_b && side_a > side_c)
+              /*auto max_t2 = (side_a > side_b && side_a > side_c)
                                 ? side_a
                                 : (side_b > side_c ? side_b : side_c);
               auto max_n2 = n_t2 * max_t2;
 
-              // n_o2 = glm::length(max_n2) > glm::length(n_o2) ? max_n2 : n_o2;
+              max_n_o2 = glm::length(max_n_o2) < max_t2 ? max_n2 : max_n_o2;*/
 
               n_o2 = glm::normalize(n_o2 + n_t2);
+
+              // o1->move(max_n2);
+              // o2->move(max_n1);
+
+              // o1->updateVertices();
+              // o2->updateVertices();
             }
           }
     }
@@ -462,8 +584,122 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
     }*/
   }
 
-  o1->move(n_o2 * 0.6f);
-  o2->move(n_o1 * 0.6f);
+  /*mergesort<std::shared_ptr<triangle>>(
+      o1->getSolidSortB(), o1->getAux(),
+      [&](std::shared_ptr<triangle> &lo,
+          std::shared_ptr<triangle> &hi) -> bool {
+        auto v_aa = glm::dot(n_o2, glm::vec3(lo->a->pos));
+        auto v_ba = glm::dot(n_o2, glm::vec3(lo->a->pos));
+        auto v_ca = glm::dot(n_o2, glm::vec3(lo->a->pos));
+        auto min_lo = (v_aa <= v_ba && v_aa <= v_ca)
+                          ? v_aa
+                          : (v_ba <= v_ca ? v_ba : v_ca);
+
+        v_aa = glm::dot(n_o2, glm::vec3(hi->a->pos));
+        v_ba = glm::dot(n_o2, glm::vec3(hi->a->pos));
+        v_ca = glm::dot(n_o2, glm::vec3(hi->a->pos));
+        auto min_hi = (v_aa <= v_ba && v_aa <= v_ca)
+                          ? v_aa
+                          : (v_ba <= v_ca ? v_ba : v_ca);
+
+        return min_lo <= min_hi;
+      });
+
+  mergesort<std::shared_ptr<triangle>>(
+      o2->getSolidSortB(), o2->getAux(),
+      [&](std::shared_ptr<triangle> &lo,
+          std::shared_ptr<triangle> &hi) -> bool {
+        auto v_aa = glm::dot(n_o2, glm::vec3(lo->a->pos));
+        auto v_ba = glm::dot(n_o2, glm::vec3(lo->a->pos));
+        auto v_ca = glm::dot(n_o2, glm::vec3(lo->a->pos));
+        auto max_lo =
+            (v_aa > v_ba && v_aa > v_ca) ? v_aa : (v_ba > v_ca ? v_ba : v_ca);
+
+        v_aa = glm::dot(n_o2, glm::vec3(hi->a->pos));
+        v_ba = glm::dot(n_o2, glm::vec3(hi->a->pos));
+        v_ca = glm::dot(n_o2, glm::vec3(hi->a->pos));
+        auto max_hi =
+            (v_aa > v_ba && v_aa > v_ca) ? v_aa : (v_ba > v_ca ? v_ba : v_ca);
+
+        return max_lo > max_hi;
+      });
+
+  auto t1 = o1->getSolidSortB().at(0);
+  auto v_aa = glm::dot(n_o2, glm::vec3(t1->a->pos));
+  auto v_ba = glm::dot(n_o2, glm::vec3(t1->a->pos));
+  auto v_ca = glm::dot(n_o2, glm::vec3(t1->a->pos));
+  auto min_t1 =
+      (v_aa <= v_ba && v_aa <= v_ca) ? v_aa : (v_ba <= v_ca ? v_ba : v_ca);
+
+  auto t2 = o2->getSolidSortB().at(0);
+  v_aa = glm::dot(n_o2, glm::vec3(t2->a->pos));
+  v_ba = glm::dot(n_o2, glm::vec3(t2->a->pos));
+  v_ca = glm::dot(n_o2, glm::vec3(t2->a->pos));
+  auto max_t2 =
+      (v_aa > v_ba && v_aa > v_ca) ? v_aa : (v_ba > v_ca ? v_ba : v_ca);
+
+  o1->move(n_o2 * (max_t2 - min_t1));
+
+  mergesort<std::shared_ptr<triangle>>(
+      o1->getSolidSortB(), o1->getAux(),
+      [&](std::shared_ptr<triangle> &lo,
+          std::shared_ptr<triangle> &hi) -> bool {
+        auto v_aa = glm::dot(n_o1, glm::vec3(lo->a->pos));
+        auto v_ba = glm::dot(n_o1, glm::vec3(lo->a->pos));
+        auto v_ca = glm::dot(n_o1, glm::vec3(lo->a->pos));
+        auto max_lo =
+            (v_aa > v_ba && v_aa > v_ca) ? v_aa : (v_ba > v_ca ? v_ba : v_ca);
+
+        v_aa = glm::dot(n_o1, glm::vec3(hi->a->pos));
+        v_ba = glm::dot(n_o1, glm::vec3(hi->a->pos));
+        v_ca = glm::dot(n_o1, glm::vec3(hi->a->pos));
+        auto max_hi =
+            (v_aa > v_ba && v_aa > v_ca) ? v_aa : (v_ba > v_ca ? v_ba : v_ca);
+
+        return max_lo > max_hi;
+      });
+
+  mergesort<std::shared_ptr<triangle>>(
+      o2->getSolidSortB(), o2->getAux(),
+      [&](std::shared_ptr<triangle> &lo,
+          std::shared_ptr<triangle> &hi) -> bool {
+        auto v_aa = glm::dot(n_o1, glm::vec3(lo->a->pos));
+        auto v_ba = glm::dot(n_o1, glm::vec3(lo->a->pos));
+        auto v_ca = glm::dot(n_o1, glm::vec3(lo->a->pos));
+        auto min_lo = (v_aa <= v_ba && v_aa <= v_ca)
+                          ? v_aa
+                          : (v_ba <= v_ca ? v_ba : v_ca);
+
+        v_aa = glm::dot(n_o1, glm::vec3(hi->a->pos));
+        v_ba = glm::dot(n_o1, glm::vec3(hi->a->pos));
+        v_ca = glm::dot(n_o1, glm::vec3(hi->a->pos));
+        auto min_hi = (v_aa <= v_ba && v_aa <= v_ca)
+                          ? v_aa
+                          : (v_ba <= v_ca ? v_ba : v_ca);
+
+        return min_lo <= min_hi;
+      });
+
+  t1 = o1->getSolidSortB().at(0);
+  v_aa = glm::dot(n_o2, glm::vec3(t1->a->pos));
+  v_ba = glm::dot(n_o2, glm::vec3(t1->a->pos));
+  v_ca = glm::dot(n_o2, glm::vec3(t1->a->pos));
+  auto max_t1 =
+      (v_aa > v_ba && v_aa > v_ca) ? v_aa : (v_ba > v_ca ? v_ba : v_ca);
+
+  t2 = o2->getSolidSortB().at(0);
+  v_aa = glm::dot(n_o2, glm::vec3(t2->a->pos));
+  v_ba = glm::dot(n_o2, glm::vec3(t2->a->pos));
+  v_ca = glm::dot(n_o2, glm::vec3(t2->a->pos));
+  auto min_t2 =
+      (v_aa <= v_ba && v_aa <= v_ca) ? v_aa : (v_ba <= v_ca ? v_ba : v_ca);
+
+  o1->move(n_o2 * (max_t1 - min_t2));*/
+
+  o1->move(n_o2);
+  o2->move(n_o1);
+  // o1->bounce(n_o2);
+  // o2->bounce(n_o1);
 }
 
 void handleCollisions() {
@@ -473,13 +709,21 @@ void handleCollisions() {
     solidsort.getList(l);
     auto size = solidsort.size() > 0 ? solidsort.size() - 1 : 0;
     for (unsigned int k = 0; k < size; ++k) {
+      /*if (!solidsort.at(k)->isMoving()) {
+        continue;
+      }*/
+
       for (auto i = k + 1; i < solidsort.size(); ++i) {
+        /*if (k == i) {
+          continue;
+        }*/
+
         // get collision boxes
         auto s1 = solidsort.at(k)->getSphere();
         auto s2 = solidsort.at(i)->getSphere();
         // when collision boxes collide
         if (glm::distance(s1.pos, s2.pos) < s1.rad + s2.rad) {
-          // sortCollisionsTriangle(solidsort.at(k), solidsort.at(i));
+          /*// sortCollisionsTriangle(solidsort.at(k), solidsort.at(i));
           const auto lo_x = s1.pos.x - s1.rad <= s2.pos.x - s2.rad
                                 ? s2.pos.x - s2.rad
                                 : s1.pos.x - s1.rad;
@@ -504,13 +748,55 @@ void handleCollisions() {
           reduceCollisionsTriangle(lo_x, hi_x, lo_y, hi_y, lo_z, hi_z,
                                    solidsort.at(i));
 
-          getCollisionsTriangle(solidsort.at(i), solidsort.at(k));
+          getCollisionsTriangle(solidsort.at(i), solidsort.at(k));*/
 
-          // solidsort.at(i)->getSolidSortC().clear();
-          if (!solidsort.at(i)->getSolidSortC().isEmpty()) {
-            // std::cout << "exit\n";
-            // exit(0);
+          auto min_axis = axes.at(0);
+          auto min = 0.f;
+          auto o1 = solidsort.at(k);
+          auto o2 = solidsort.at(i);
+
+          o1->updateVertices();
+          o2->updateVertices();
+
+          /*std::vector<vertex> vertices_o1 = std::vector<vertex>();
+          std::vector<vertex> vertices_o2 = std::vector<vertex>();
+
+          for (auto &v : o1->getVertices()) {
+            if (glm::distance(v.pos, s2.pos) < s2.rad) {
+              vertices_o1.push_back(v);
+            }
+            // vertices_o1.push_back(v);
           }
+
+          for (auto &v : o2->getVertices()) {
+            if (glm::distance(v.pos, s1.pos) < s1.rad) {
+              vertices_o2.push_back(v);
+            }
+
+            // vertices_o2.push_back(v);
+          }
+
+          for (unsigned int j = 0; j < axes.size(); ++j) {
+            auto len = testCollisionAxis2(vertices_o1, vertices_o2, axes.at(j));
+
+            if (j == 0 || std::abs(len) < std::abs(min)) {
+              min_axis = axes.at(j);
+              min = len;
+            }
+          }*/
+
+          for (unsigned int j = 0; j < axes.size(); ++j) {
+            auto len = testCollisionAxis2(o1->getVertices(), o2->getVertices(),
+                                          axes.at(j));
+
+            if (j == 0 || std::abs(len) < std::abs(min)) {
+              min_axis = axes.at(j);
+              min = len;
+            }
+          }
+
+          o1->move(min_axis * min);
+          o2->move(-min_axis * min);
         }
       }
     }

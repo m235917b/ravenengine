@@ -36,5 +36,6 @@ void ComposedObject::render(glm::mat4 &projection, glm::mat4 &view) {
 }
 
 void ComposedObject::run() {
+	
 }
 

@@ -7,6 +7,7 @@
 
 #include "Solid.hpp"
 #include <Player.hpp>
+#include <glm/fwd.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <loadObject.hpp>
 
@@ -31,11 +32,13 @@ Player::Player(const Player &that) : rpy::Solid(0.0f, 0.0f, 0.0f) {
     this->model = that.model;
     this->pos = that.pos;
     this->rot = that.rot;
+    // this->scal = that.scal;
     this->angle = that.angle;
     this->matrixID = that.matrixID;
     this->vertexarray = that.vertexarray;
     this->vertexbuffer = that.vertexbuffer;
     this->lookAt = that.lookAt;
+    this->force = that.force;
     std::vector<GLfloat> v = getVertexData();
     std::vector<GLfloat> n = getNormalData();
     std::vector<GLfloat> t = getTexData();
@@ -51,11 +54,13 @@ Player &Player::operator=(const Player &that) {
     this->model = that.model;
     this->pos = that.pos;
     this->rot = that.rot;
+    // this->scal = that.scal;
     this->angle = that.angle;
     this->matrixID = that.matrixID;
     this->vertexarray = that.vertexarray;
     this->vertexbuffer = that.vertexbuffer;
     this->lookAt = that.lookAt;
+    this->force = that.force;
     std::vector<GLfloat> v = getVertexData();
     std::vector<GLfloat> n = getNormalData();
     std::vector<GLfloat> t = getTexData();
@@ -106,24 +111,23 @@ glm::vec3 Player::getUp() { return rot; }
 void Player::move(glm::vec3 dir) {
   pos += dir;
   setSpherePos(glm::vec4(pos, 1.0f));
+  setBoundingBoxPos(glm::vec4(pos, 1.0f));
 }
 
 template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
 void Player::moveForeward(float amount) {
-  pos += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
+  /*pos += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
   setSpherePos(glm::vec4(pos, 1.0f));
-  /*this->objectspaceTrans =
-      glm::rotate(this->objectspaceTrans, sgn(amount) * -0.2f,
-                  glm::vec3(1.f, 0.f, 0.f));*/
+  setBoundingBoxPos(glm::vec4(pos, 1.0f));*/
+  force += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
 }
 
 void Player::moveLeft(float amount) {
-  pos += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
+  /*pos += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
   setSpherePos(glm::vec4(pos, 1.0f));
-  /*this->objectspaceTrans =
-      glm::rotate(this->objectspaceTrans, sgn(amount) * -0.2f,
-                  glm::vec3(0.f, 0.f, 1.f));*/
+  setBoundingBoxPos(glm::vec4(pos, 1.0f));*/
+  force += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
 }
 
 void Player::rotateX(float angle) {
@@ -133,4 +137,11 @@ void Player::rotateX(float angle) {
 
 void Player::rotateY(float angle) {
   lookAt = glm::rotate(lookAt, angle, glm::cross(lookAt, rot));
+}
+
+void Player::run() {
+  pos += force;
+  setSpherePos(glm::vec4(pos, 1.0f));
+  setBoundingBoxPos(glm::vec4(pos, 1.0f));
+  // force = glm::vec3(0.f);
 }

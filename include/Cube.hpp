@@ -17,10 +17,10 @@ protected:
 	std::vector<GLfloat> getTexData();
 	std::vector<GLuint> getIndexData();
 
-	void run() override;
-
 public:
 	CubeWorld(float posX, float posY, float posZ);
+
+	void run() override;
 };
 
 #endif

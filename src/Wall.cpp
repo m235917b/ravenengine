@@ -18,17 +18,13 @@ Wall::Wall(float posX, float posY, float posZ) : Solid(posX, posY, posZ) {
   std::vector<GLfloat> t = getTexData();
   std::vector<GLuint> i = getIndexData();
   auto data = loadSolid("obj/wall.txt");
-  std::cout << "hello\n";
-  for (auto v : data.vertices) {
-    std::cout << v << "\n";
-  }
-  std::cout << "hello\n";
   genBuffers(data.vertices, data.normals, data.texData, data.indices);
   // genBuffers(v, n, t, i);
   genTexture("tex/cube.png");
   fillTriangles(data.vertices, data.normals, data.indices);
   // fillTriangles(v, n, i);
   transformSphere(glm::translate(glm::vec3(posX, posY, posZ)));
+  transformBoundingBox(glm::translate(glm::vec3(posX, posY, posZ)));
 }
 
 std::vector<GLfloat> Wall::getVertexData() {
