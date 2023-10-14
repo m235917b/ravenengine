@@ -104,7 +104,7 @@ public:
 
   virtual void move(glm::vec3 dir);
 
-  void bounce(glm::vec3 dir);
+  virtual void bounce(glm::vec3 v);
 
   void bounce2(glm::vec3 v);
 

@@ -23,6 +23,7 @@ public:
 
 	void move(glm::vec3 dir) override;
 	void run() override;
+	void clean() override;
 };
 
 #endif

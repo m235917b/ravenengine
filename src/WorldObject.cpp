@@ -7,6 +7,7 @@
 
 #include <WorldObject.hpp>
 #include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <loadShader.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -19,7 +20,7 @@ WorldObject::WorldObject(float posX, float posY, float posZ) :
 		glGetUniformLocation(programID, "MVP")), textureID(0), vertexbuffer(0), normalbuffer(
 				0), texbuffer(0), indexbuffer(0), vertexarray(0), vertexCount(
 				0), pos(posX, posY, posZ), rot(0.0f, 1.0f, 0.0f), scal(1.0f), model(
-				1.0f), objectspaceTrans(1.0f), angle(0.0f), force(0.f) {
+				1.0f), objectspaceTrans(1.0f), angle(0.0f), force(0.f), speed(0.f) {
 }
 
 WorldObject::~WorldObject() {
@@ -159,8 +160,10 @@ void WorldObject::render(glm::mat4 &projection, glm::mat4 &view) {
 
 void WorldObject::clean() {
 	force = glm::vec3(0.f);
+	pos_old = pos;
 }
 
 bool WorldObject::isMoving() {
-	return force.x != 0.f || force.y != 0.f || force.z != 0.f;
+	// return std::abs(force.x) > .01f || std::abs(force.y) > .01f || std::abs(force.z) > .01f;
+	return glm::distance(pos, pos_old) > .1f;
 }

@@ -1,17 +1,15 @@
 /*
- * CubeTest.h
- *
- *  Created on: Nov 1, 2020
- *      Author: marvi
+ * Floor.hpp
+ * Author: marvi
  */
 
-#ifndef TESTCUBE_H
-#define TESTCUBE_H
+#ifndef FLOOR_H
+#define FLOOR_H
 
 #include <GL/glew.h>
 #include <Solid.hpp>
 
-class CubeTest: public rpy::Solid {
+class Floor: public rpy::Solid {
 private:
 
 protected:
@@ -21,11 +19,10 @@ protected:
 	std::vector<GLuint> getIndexData();
 
 public:
-	CubeTest(float posX, float posY, float posZ);
+	Floor(float posX, float posY, float posZ);
 
 	void move(glm::vec3 dir) override;
 	void run() override;
-	void clean() override;
 	void bounce(glm::vec3 v) override;
 };
 

@@ -254,10 +254,14 @@ void Solid::move(glm::vec3 dir) {
   // setSpherePos(glm::vec4(pos, 1.0f));
 }
 
-void Solid::bounce(glm::vec3 dir) {
-  if (force.x == 0.f && force.y == 0.f && force.z == 0.f)
+void Solid::bounce(glm::vec3 v) {
+  /*if (speed.x == 0.f && speed.y == 0.f && speed.z == 0.f)
     return;
-  pos -= glm::dot(dir, force) * dir;
+  pos -= glm::dot(dir, speed) * dir;*/
+  // pos += glm::dot(dir, speed) * dir;
+  if (glm::dot(v, speed) < 0)
+    speed -= glm::dot(glm::normalize(v), speed) * glm::normalize(v);
+  pos += v;
   setSpherePos(glm::vec4(pos, 1.0f));
   setBoundingBoxPos(glm::vec4(pos, 1.0f));
   // if (dir.x != 0.f || dir.y != 0.f || dir.z != 0.f)

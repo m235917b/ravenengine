@@ -38,6 +38,7 @@ public:
 	void rotateY(float angle);
 	void rotateX(float angle);
 	void run() override;
+	void clean() override;
 };
 
 #endif /* INCLUDE_PLAYER_HPP_ */

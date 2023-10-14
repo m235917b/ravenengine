@@ -547,24 +547,20 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
                       glm::cross(glm::vec3(t1->b->pos - t1->a->pos),
                                  glm::vec3(t1->c->pos - t1->a->pos)));
 
-              /*auto v_aa = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->a->pos));
+              auto v_aa = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->a->pos));
               auto v_ba = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->b->pos));
               auto v_ca = glm::dot(n_t1, glm::vec3(t1->a->pos - t2->c->pos));
-              auto max_t1 = (v_aa > v_ba && v_aa > v_ca)
-                                ? v_aa
-                                : (v_ba > v_ca ? v_ba : v_ca);
+              auto max_t1 = std::max({v_aa, v_ba, v_ca});
               auto max_n1 = n_t1 * max_t1;
 
-              max_n_o1 = glm::length(max_n_o1) < max_t1 ? max_n1 : max_n_o1;*/
+              max_n_o1 = glm::length(max_n_o1) < max_t1 ? max_n1 : max_n_o1;
 
               n_o1 = glm::normalize(n_o1 + n_t1);
 
-              /*auto max_t2 = (side_a > side_b && side_a > side_c)
-                                ? side_a
-                                : (side_b > side_c ? side_b : side_c);
+              auto max_t2 = std::max({side_a, side_b, side_c});
               auto max_n2 = n_t2 * max_t2;
 
-              max_n_o2 = glm::length(max_n_o2) < max_t2 ? max_n2 : max_n_o2;*/
+              max_n_o2 = glm::length(max_n_o2) < max_t2 ? max_n2 : max_n_o2;
 
               n_o2 = glm::normalize(n_o2 + n_t2);
 
@@ -696,10 +692,61 @@ inline void getCollisionsTriangle(std::shared_ptr<Solid> o1,
 
   o1->move(n_o2 * (max_t1 - min_t2));*/
 
-  o1->move(n_o2);
-  o2->move(n_o1);
-  // o1->bounce(n_o2);
-  // o2->bounce(n_o1);
+  // o1->move(n_o2);
+  // o2->move(n_o1);
+  o1->bounce(max_n_o2);
+  o2->bounce(max_n_o1);
+}
+
+void handleCollisions2() {
+  sortCollisions();
+
+  for (unsigned int l = 0; l < solidsort.numLists(); ++l) {
+    solidsort.getList(l);
+    auto size = solidsort.size() > 0 ? solidsort.size() - 1 : 0;
+    for (unsigned int k = 0; k < solidsort.size(); ++k) {
+      if (!solidsort.at(k)->isMoving()) {
+        continue;
+      }
+
+      for (auto i = 0; i < solidsort.size(); ++i) {
+        if (k == i) {
+          continue;
+        }
+
+        // get collision boxes
+        auto s1 = solidsort.at(k)->getSphere();
+        auto s2 = solidsort.at(i)->getSphere();
+        // when collision boxes collide
+        if (glm::distance(s1.pos, s2.pos) < s1.rad + s2.rad) {
+          auto min_axis = axes.at(0);
+          auto min = 0.f;
+          auto o1 = solidsort.at(k);
+          auto o2 = solidsort.at(i);
+
+          o1->updateVertices();
+          o2->updateVertices();
+
+          for (unsigned int j = 0; j < axes.size(); ++j) {
+            auto len = testCollisionAxis2(o1->getVertices(), o2->getVertices(),
+                                          axes.at(j));
+
+            if (j == 0 || std::abs(len) < std::abs(min)) {
+              min_axis = axes.at(j);
+              min = len;
+            }
+
+            if (len == 0.f) {
+              break;
+            }
+          }
+
+          o1->move(min_axis * min);
+          o2->move(-min_axis * min);
+        }
+      }
+    }
+  }
 }
 
 void handleCollisions() {
@@ -717,13 +764,16 @@ void handleCollisions() {
         /*if (k == i) {
           continue;
         }*/
+        /*if (!solidsort.at(k)->isMoving() && !solidsort.at(i)->isMoving()) {
+          continue;
+        }*/
 
         // get collision boxes
         auto s1 = solidsort.at(k)->getSphere();
         auto s2 = solidsort.at(i)->getSphere();
         // when collision boxes collide
         if (glm::distance(s1.pos, s2.pos) < s1.rad + s2.rad) {
-          /*// sortCollisionsTriangle(solidsort.at(k), solidsort.at(i));
+          // sortCollisionsTriangle(solidsort.at(k), solidsort.at(i));
           const auto lo_x = s1.pos.x - s1.rad <= s2.pos.x - s2.rad
                                 ? s2.pos.x - s2.rad
                                 : s1.pos.x - s1.rad;
@@ -748,35 +798,47 @@ void handleCollisions() {
           reduceCollisionsTriangle(lo_x, hi_x, lo_y, hi_y, lo_z, hi_z,
                                    solidsort.at(i));
 
-          getCollisionsTriangle(solidsort.at(i), solidsort.at(k));*/
+          getCollisionsTriangle(solidsort.at(i), solidsort.at(k));
 
-          auto min_axis = axes.at(0);
+          /*auto min_axis = axes.at(0);
           auto min = 0.f;
           auto o1 = solidsort.at(k);
           auto o2 = solidsort.at(i);
 
           o1->updateVertices();
-          o2->updateVertices();
+          o2->updateVertices();*/
 
           /*std::vector<vertex> vertices_o1 = std::vector<vertex>();
           std::vector<vertex> vertices_o2 = std::vector<vertex>();
 
-          for (auto &v : o1->getVertices()) {
+          for (unsigned int j = 0; j < o1->getSolidSortB().size(); ++j) {
+            vertices_o1.push_back(*o1->getSolidSortB().at(j)->a);
+            vertices_o1.push_back(*o1->getSolidSortB().at(j)->b);
+            vertices_o1.push_back(*o1->getSolidSortB().at(j)->c);
+          }
+
+          for (unsigned int j = 0; j < o2->getSolidSortB().size(); ++j) {
+            vertices_o2.push_back(*o2->getSolidSortB().at(j)->a);
+            vertices_o2.push_back(*o2->getSolidSortB().at(j)->b);
+            vertices_o2.push_back(*o2->getSolidSortB().at(j)->c);
+          }*/
+
+          /*for (auto &v : o1->getVertices()) {
+            std::cout << glm::distance(v.pos, s2.pos) << ", " << s2.rad << "\n";
             if (glm::distance(v.pos, s2.pos) < s2.rad) {
               vertices_o1.push_back(v);
             }
-            // vertices_o1.push_back(v);
           }
+
+          std::cout << "--------\n";
 
           for (auto &v : o2->getVertices()) {
             if (glm::distance(v.pos, s1.pos) < s1.rad) {
               vertices_o2.push_back(v);
             }
+          }*/
 
-            // vertices_o2.push_back(v);
-          }
-
-          for (unsigned int j = 0; j < axes.size(); ++j) {
+          /*for (unsigned int j = 0; j < axes.size(); ++j) {
             auto len = testCollisionAxis2(vertices_o1, vertices_o2, axes.at(j));
 
             if (j == 0 || std::abs(len) < std::abs(min)) {
@@ -785,7 +847,7 @@ void handleCollisions() {
             }
           }*/
 
-          for (unsigned int j = 0; j < axes.size(); ++j) {
+          /*for (unsigned int j = 0; j < axes.size(); ++j) {
             auto len = testCollisionAxis2(o1->getVertices(), o2->getVertices(),
                                           axes.at(j));
 
@@ -796,7 +858,7 @@ void handleCollisions() {
           }
 
           o1->move(min_axis * min);
-          o2->move(-min_axis * min);
+          o2->move(-min_axis * min);*/
         }
       }
     }

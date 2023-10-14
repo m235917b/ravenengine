@@ -29,6 +29,7 @@ protected:
   int vertexCount;
 
   glm::vec3 pos;
+  glm::vec3 pos_old;
   glm::vec3 rot;
   glm::vec3 scal;
   glm::mat4 model;
@@ -36,6 +37,7 @@ protected:
   float angle;
 
   glm::vec3 force;
+  glm::vec3 speed;
 
   void genBuffers(std::vector<GLfloat> &vertexData,
                   std::vector<GLfloat> &normalData,

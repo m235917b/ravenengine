@@ -14,10 +14,6 @@
 // constructor
 Player::Player() : rpy::Solid(0.0f, 0.0f, 0.0f) {
   lookAt = glm::vec3(0.0f, 0.0f, -1.0f);
-  std::vector<GLfloat> v = getVertexData();
-  std::vector<GLfloat> n = getNormalData();
-  std::vector<GLfloat> t = getTexData();
-  std::vector<GLuint> i = getIndexData();
   auto data = loadSolid("obj/player.txt");
   genBuffers(data.vertices, data.normals, data.texData, data.indices);
   genTexture("tex/test.png");
@@ -39,10 +35,6 @@ Player::Player(const Player &that) : rpy::Solid(0.0f, 0.0f, 0.0f) {
     this->vertexbuffer = that.vertexbuffer;
     this->lookAt = that.lookAt;
     this->force = that.force;
-    std::vector<GLfloat> v = getVertexData();
-    std::vector<GLfloat> n = getNormalData();
-    std::vector<GLfloat> t = getTexData();
-    std::vector<GLuint> i = getIndexData();
     auto data = loadSolid("obj/player.txt");
     genBuffers(data.vertices, data.normals, data.texData, data.indices);
   }
@@ -61,45 +53,11 @@ Player &Player::operator=(const Player &that) {
     this->vertexbuffer = that.vertexbuffer;
     this->lookAt = that.lookAt;
     this->force = that.force;
-    std::vector<GLfloat> v = getVertexData();
-    std::vector<GLfloat> n = getNormalData();
-    std::vector<GLfloat> t = getTexData();
-    std::vector<GLuint> i = getIndexData();
     auto data = loadSolid("obj/player.txt");
     genBuffers(data.vertices, data.normals, data.texData, data.indices);
   }
 
   return *this;
-}
-
-std::vector<GLfloat> Player::getVertexData() {
-  std::vector<GLfloat> v = {-1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,
-                            1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,
-                            -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,
-                            1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f};
-  return v;
-}
-
-std::vector<GLfloat> Player::getNormalData() {
-  std::vector<GLfloat> c = {0.583f, 0.771f, 0.014f, 0.609f, 0.115f, 0.436f,
-                            0.327f, 0.483f, 0.844f, 0.822f, 0.569f, 0.201f,
-                            0.435f, 0.602f, 0.223f, 0.310f, 0.747f, 0.185f,
-                            0.597f, 0.770f, 0.761f, 0.559f, 0.436f, 0.730f};
-  return c;
-}
-
-std::vector<GLfloat> Player::getTexData() {
-  std::vector<GLfloat> c = {0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f};
-  return c;
-}
-
-std::vector<GLuint> Player::getIndexData() {
-  std::vector<GLuint> i = {0, 1, 2, 0, 2, 3, 4, 0, 3, 4, 3, 7,
-                           5, 4, 7, 5, 7, 6, 1, 5, 6, 1, 6, 2,
-                           4, 5, 1, 4, 1, 0, 3, 2, 6, 3, 6, 7};
-
-  return i;
 }
 
 glm::vec3 Player::getPos() { return pos; }
@@ -120,14 +78,14 @@ void Player::moveForeward(float amount) {
   /*pos += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
   setSpherePos(glm::vec4(pos, 1.0f));
   setBoundingBoxPos(glm::vec4(pos, 1.0f));*/
-  force += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
+  speed += amount * glm::vec3(lookAt.x, 0.0f, lookAt.z);
 }
 
 void Player::moveLeft(float amount) {
   /*pos += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
   setSpherePos(glm::vec4(pos, 1.0f));
   setBoundingBoxPos(glm::vec4(pos, 1.0f));*/
-  force += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
+  speed += amount * glm::cross(glm::vec3(lookAt.x, 0.0f, lookAt.z), rot);
 }
 
 void Player::rotateX(float angle) {
@@ -140,8 +98,15 @@ void Player::rotateY(float angle) {
 }
 
 void Player::run() {
-  pos += force;
+  // force += glm::vec3(0.f, -.2f, 0.f);
+  pos += speed;
   setSpherePos(glm::vec4(pos, 1.0f));
   setBoundingBoxPos(glm::vec4(pos, 1.0f));
   // force = glm::vec3(0.f);
+  // speed += force;
+}
+
+void Player::clean() {
+  force = glm::vec3(0.f);
+  // speed = glm::vec3(0.f);
 }
